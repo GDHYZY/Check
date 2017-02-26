@@ -47,6 +47,8 @@ public class IOUnit {
 		            XWPFWordExtractor extractor =new XWPFWordExtractor(document);  
 		            text[i] = extractor.getText();   
 				}
+				Text2Vec t2v = new Text2Vec();
+				t2v.start(text[i]);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

@@ -11,6 +11,12 @@ import jxl.write.biff.RowsExceededException;
 
 public class VectorConsine {
 	
+	//判断无意义字符
+	private static boolean isMeanless(char ch){
+		return (ch==' ' || ch=='\t' || ch=='\n' || ch=='.' || ch=='。' || ch=='、' || ch==';' ||
+				ch==',' || ch=='，' || ch=='\t' || ch=='\r');
+	}
+	
 	//判断汉字
 	public static boolean isChinese(char ch){
 		return (ch >= 0x4E00 && ch <= 0x9FA5);
@@ -39,7 +45,7 @@ public class VectorConsine {
 			WordsVector = new HashMap<Object, Integer>();
 			for(int i = 0 ; i < doc.length(); ++i){
 				char d = doc.charAt(i);
-//				if(isChinese(d)){
+				if(!isMeanless(d)){
 //					int index = getGB2312Id(d);
 					Integer iv = WordsVector.get(d);
 					if(iv != null){
@@ -48,10 +54,9 @@ public class VectorConsine {
 						iv = 1;
 					}
 					WordsVector.put(d, iv);
-//				}
+				}
 			}
 		}
-		System.out.println(WordsVector);
 		return WordsVector;
 	}
 	
@@ -67,7 +72,7 @@ public class VectorConsine {
 				if (i >= j)
 					continue;
 				double result= getSimilarity(buildWordsVector(text[i]), buildWordsVector(text[j]));
-						System.out.println(name[i] + "和" + name[j] + "的相似度为"
+						System.out.println(text[i] + "和" + text[j] + "的相似度为"
 								+ result);
 
 						if (result > 0.50) 
@@ -89,9 +94,44 @@ public class VectorConsine {
 
 	}
 	
+	//合并两个向量
+	public static Map<Object, Integer> MergeVector(Map<Object, Integer> vc1,Map<Object, Integer> vc2){
+		if(vc1 == null)
+			return vc2;
+		else if(vc2 == null){
+			return vc1;
+		}
+		else{
+			Map<Object,Integer> res = new HashMap<Object, Integer>();
+			Iterator<Map.Entry<Object, Integer>> it = vc1.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Object, Integer> entry = it.next();
+				Object key = entry.getKey();
+				int value = entry.getValue();
+				if(vc2.get(key) != null){
+					value += vc2.get(key);
+				}
+				res.put(key, value);
+			}
+			it = vc2.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Object, Integer> entry = it.next();
+				Object key = entry.getKey();
+				int value = entry.getValue();
+				if(vc1.get(key) != null){
+					continue;
+				}
+				res.put(key, value);
+			}
+			return res;
+		}
+	}
+	
 	//余弦定理求两向量相似度
 	public static double getSimilarity(Map<Object, Integer> vc1,Map<Object, Integer> vc2){
 
+		double res = 0.0;
+		
 		if (vc1!=null && vc2!=null) {
 
 			Map<Object, int[]> AlgorithmMap = new HashMap<Object, int[]>();
@@ -139,11 +179,8 @@ public class VectorConsine {
 				sqdoc1 += c[0]*c[0];
 				sqdoc2 += c[1]*c[1];
 			}
-			return denominator / Math.sqrt(sqdoc1*sqdoc2);
-		
-		} else {
-			throw new NullPointerException(
-					" the Document is null or have not chars!!");
-		}
+			res = denominator / Math.sqrt(sqdoc1*sqdoc2);
+		} 
+		return res;
 	}
 }
