@@ -1,3 +1,4 @@
+package BaseUtil;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -8,6 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import IOModule.IOUnit;
+import TextVectorModule.TextVector;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
@@ -17,7 +20,7 @@ public class GuiListener implements ActionListener
 
 	static JFrame f = new JFrame();
 	IOUnit io = new IOUnit();
-	VectorConsine vc = new VectorConsine();
+	TextVector vc = new TextVector();
     String[] text = null;//存储学生论文的字符串数组
 	String[] name = null;//存储学生姓名等信息
 	Object[] object=null;//存储学生论文相似的学生信息
@@ -45,8 +48,7 @@ public class GuiListener implements ActionListener
 				String path=jfc.getSelectedFile().getParent();
 				System.out.println(path);
 				text=new String[f.length];
-				
-				text = io.readWord(path,name);
+				io.readWord(path,name);
 				JOptionPane.showMessageDialog(null, "文件已读入！");		
 			}
 		}

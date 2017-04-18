@@ -1,3 +1,4 @@
+package TextVectorModule;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -5,60 +6,41 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import BaseUtil.ReporteDate;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
 
-public class VectorConsine {
+public class TextVector implements Runnable {
+	private int m_Index = 0;
+	private int m_Paragraph = 0; //段落
+	private int m_Front = 0, m_Last = 0;
+	private String m_Sentence = null;
+	private String m_Doc = "";
+	private ReporteDate m_Reporte = null;
 	
 	//判断无意义字符
-	private static boolean isMeanless(char ch){
+	private boolean isMeanless(char ch){
 		return (ch==' ' || ch=='\t' || ch=='\n' || ch=='.' || ch=='。' || ch=='、' || ch==';' ||
 				ch==',' || ch=='，' || ch=='\t' || ch=='\r');
 	}
 	
-	//判断汉字
-	public static boolean isChinese(char ch){
-		return (ch >= 0x4E00 && ch <= 0x9FA5);
-	}
-	
 	//获取GB2312码
-	public static short getGB2312Id(char ch) {
-		try {
-			byte[] buffer = Character.toString(ch).getBytes("GB2312");
-			if (buffer.length != 2) {
-				return -1;
-			}
-			int b0 = (int) (buffer[0] & 0x0FF) - 161; 
-			int b1 = (int) (buffer[1] & 0x0FF) - 161; 
-			return (short) (b0 * 94 + b1);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
+//	public static short getGB2312Id(char ch) {
+//		try {
+//			byte[] buffer = Character.toString(ch).getBytes("GB2312");
+//			if (buffer.length != 2) {
+//				return -1;
+//			}
+//			int b0 = (int) (buffer[0] & 0x0FF) - 161; 
+//			int b1 = (int) (buffer[1] & 0x0FF) - 161; 
+//			return (short) (b0 * 94 + b1);
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
+//		return -1;
+//	}
 	
-	//建立文档的词频空间向量
-	public static Map<Object, Integer> buildWordsVector(String doc){
-		Map<Object, Integer> WordsVector = null;
-		if(doc != null && doc.trim().length() > 0){
-			WordsVector = new HashMap<Object, Integer>();
-			for(int i = 0 ; i < doc.length(); ++i){
-				char d = doc.charAt(i);
-				if(!isMeanless(d)){
-//					int index = getGB2312Id(d);
-					Integer iv = WordsVector.get(d);
-					if(iv != null){
-						iv+=1;
-					}else{
-						iv = 1;
-					}
-					WordsVector.put(d, iv);
-				}
-			}
-		}
-		return WordsVector;
-	}
 	
 	public Object[] CalculateSimilarityAlgrithm(String text[],String name[]) throws IOException,
 	RowsExceededException, WriteException {
@@ -71,7 +53,7 @@ public class VectorConsine {
 			for (int j = 1; j <text.length; j++) {
 				if (i >= j)
 					continue;
-				double result= getSimilarity(buildWordsVector(text[i]), buildWordsVector(text[j]));
+				double result= getSimilarity(_BuildWordsVector(text[i]), _BuildWordsVector(text[j]));
 						System.out.println(text[i] + "和" + text[j] + "的相似度为"
 								+ result);
 
@@ -165,10 +147,6 @@ public class VectorConsine {
 				}
 			}
 			
-//			for(Map.Entry<Object,int[]> e : AlgorithmMap.entrySet()){
-//				System.out.println("key："+e.getKey()+"  ["+ e.getValue()[0]+","+e.getValue()[1]+"]");
-//			}
-			
 			Iterator<Object> iterator = AlgorithmMap.keySet().iterator();
 			double sqdoc1 = 0;
 			double sqdoc2 = 0;
@@ -182,5 +160,81 @@ public class VectorConsine {
 			res = denominator / Math.sqrt(sqdoc1*sqdoc2);
 		} 
 		return res;
+	}
+	
+	//下一段
+	private void nextSentence(String text){
+		while(!isEndofSentence(text.charAt(m_Last))){
+			++m_Last;
+		}
+	}
+	
+	//判断句子结束
+	private boolean isEndofSentence(char ch){
+		return ( ch=='.' || ch=='。' || ch=='、' || ch==';' || ch=='\n');
+	}
+	
+	private Map<Object, Integer> nextParagraph(String text){
+		Map<Object, Integer> res = new HashMap<Object, Integer>();
+		while(m_Last < text.length() && text.charAt(m_Last) !='\n'){
+			nextSentence(text);
+			m_Sentence = text.substring(m_Front,m_Last);
+			res = MergeVector(res, _BuildWordsVector(m_Sentence));
+			m_Front = m_Last+1;
+			m_Last+=1;
+		}
+		m_Last+=1;
+		//排除空白行，将每一段的向量保存起来
+		m_Paragraph+=1;
+		m_Reporte.ParagraphHash.put(m_Paragraph, res.toString());
+		m_Reporte.PargraphNum = m_Paragraph;						
+		return res;
+	}
+	
+	//建立文档的词频空间向量
+	private Map<Object, Integer> _BuildWordsVector(String doc){
+		Map<Object, Integer> WordsVector = null;
+		if(doc != null && doc.trim().length() > 0){
+			WordsVector = new HashMap<Object, Integer>();
+			for(int i = 0 ; i < doc.length(); ++i){
+				char d = doc.charAt(i);
+				if(!isMeanless(d)){
+//					int index = getGB2312Id(d);
+					Integer iv = WordsVector.get(d);
+					if(iv != null){
+						iv+=1;
+					}else{
+						iv = 1;
+					}
+					WordsVector.put(d, iv);
+				}
+			}
+		}
+		return WordsVector;
+	}
+	
+	public TextVector(){
+	}
+	
+	public TextVector(String doc, int index, ReporteDate[] reportes){
+		assert(! doc.isEmpty());
+		assert(index >= 0);
+		assert(reportes != null);
+		m_Reporte = reportes[index];
+		m_Index = index;
+		m_Doc = doc;
+		m_Paragraph = 0;
+		m_Front = m_Last = 0;
+		m_Sentence = "";
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub		
+		Map<Object, Integer> res = new HashMap<Object, Integer>();
+		while(m_Last < m_Doc.length()){
+			res = MergeVector(res, nextParagraph(m_Doc));
+		}
+		m_Reporte.TextHash = res.toString();
 	}
 }
