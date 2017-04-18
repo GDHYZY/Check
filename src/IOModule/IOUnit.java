@@ -72,7 +72,7 @@ public class IOUnit {
 		            XWPFWordExtractor extractor =new XWPFWordExtractor(document);  
 		            text = extractor.getText();   
 				}
-				System.out.println(text);
+
 				reportes[i].WordNum = text.length();
 				TextVector tv = new TextVector(text, i, reportes);
 				thread[i] = new Thread(tv);

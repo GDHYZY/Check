@@ -94,7 +94,6 @@ public class DBUnit {
 	//判断是否存在报告表的项
 	private boolean ExistReportItem(ReporteDate reporte){
 		String sentence = "select * from " + m_report + " where id='" + reporte.StuNum + "';";
-		System.out.println(sentence);
 		try {
 			ResultSet rs = m_statement.executeQuery(sentence);
 			return !rs.wasNull();
@@ -106,10 +105,12 @@ public class DBUnit {
 	//判断是否存在报告的段落数据库
 	private boolean ExistParagraphTable(ReporteDate reporte){
 		String sentence = "show tables like \"" + reporte.StuNum + reporte.StuName +"\";";
-		ResultSet rs;
 		try {
-			rs = m_statement.executeQuery(sentence);
-			return !rs.wasNull();
+			ResultSet rs = m_statement.executeQuery(sentence);
+			if (rs.next()){
+				return true;
+			}
+			return false;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
