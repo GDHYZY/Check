@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import CompareModule.CompareUnit;
 import IOModule.IOUnit;
 import TextVectorModule.TextVector;
 import jxl.write.WriteException;
@@ -20,7 +21,7 @@ public class GuiListener implements ActionListener
 
 	static JFrame f = new JFrame();
 	IOUnit io = new IOUnit();
-	TextVector vc = new TextVector();
+	CompareUnit cp = new CompareUnit();
     String[] text = null;//存储学生论文的字符串数组
 	String[] name = null;//存储学生姓名等信息
 	Object[] object=null;//存储学生论文相似的学生信息
@@ -43,7 +44,6 @@ public class GuiListener implements ActionListener
 				for(int i=0;i<f.length;i++)
 				{
 					name[i]=f[i].getName();
-					System.out.println(name[i]);
 				}
 				String path=jfc.getSelectedFile().getParent();
 				System.out.println(path);
@@ -53,24 +53,24 @@ public class GuiListener implements ActionListener
 			}
 		}
 		
-		if(e.getActionCommand()=="余弦定理")
-		{
-//			new ProgressMonitorExample();
-			try {
-				if(text != null && text.length > 0)
-					object=vc.CalculateSimilarityAlgrithm(text,name);
-			} catch (RowsExceededException e1) {
-				// TODO 自动生成的 catch 块
-				e1.printStackTrace();
-			} catch (WriteException e1) {
-				// TODO 自动生成的 catch 块
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO 自动生成的 catch 块
-				e1.printStackTrace();
-			}
-			JOptionPane.showMessageDialog(null, "余弦定理算法查重完毕！");	
-		}
+//		if(e.getActionCommand()=="余弦定理")
+//		{
+////			new ProgressMonitorExample();
+//			try {
+//				if(text != null && text.length > 0)
+//					object=cp.CalculateSimilarityAlgrithm(text,name);
+//			} catch (RowsExceededException e1) {
+//				// TODO 自动生成的 catch 块
+//				e1.printStackTrace();
+//			} catch (WriteException e1) {
+//				// TODO 自动生成的 catch 块
+//				e1.printStackTrace();
+//			} catch (IOException e1) {
+//				// TODO 自动生成的 catch 块
+//				e1.printStackTrace();
+//			}
+//			JOptionPane.showMessageDialog(null, "余弦定理算法查重完毕！");	
+//		}
 			
 		if(e.getActionCommand()=="saveButton")
 		{

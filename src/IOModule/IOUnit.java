@@ -16,6 +16,7 @@ import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
@@ -25,6 +26,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import TextVectorModule.TextVector;
 import BaseUtil.*;
+import CompareModule.CompareUnit;
 import DateBaseModule.DBUnit;
 
 public class IOUnit {
@@ -42,7 +44,7 @@ public class IOUnit {
 	{
 		InputStream  in = null;		
 		
-		ReporteDate[] reportes = new ReporteDate[name.length];
+		ReportData[] reports = new ReportData[name.length];
 		Thread[] thread = new Thread[name.length];
 		
 		try {
@@ -53,11 +55,11 @@ public class IOUnit {
 				String AbsolutePath=path+"\\"+name[i];
 				in = new FileInputStream(new File(AbsolutePath));
 				String[] sp = name[i].split("\\.");
-				String[] value = sp[0].split("-");
-				
-				reportes[i] = new ReporteDate();
-				reportes[i].StuNum = value[0];
-				reportes[i].StuName = value[1];
+				String[] value = sp[0].split("_");
+
+				reports[i] = new ReportData();
+				reports[i].StuNum = value[0];
+				reports[i].StuName = value[1];
 				
 				//获取文本
 				if (!in.markSupported()) {  
@@ -72,9 +74,10 @@ public class IOUnit {
 		            XWPFWordExtractor extractor =new XWPFWordExtractor(document);  
 		            text = extractor.getText();   
 				}
-
-				reportes[i].WordNum = text.length();
-				TextVector tv = new TextVector(text, i, reportes);
+				text = text.trim();
+				reports[i].WordNum = text.length();
+				reports[i].Path = AbsolutePath;
+				TextVector tv = new TextVector(text, i, reports);
 				thread[i] = new Thread(tv);
 				thread[i].start();
 			}
@@ -90,60 +93,27 @@ public class IOUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		//对比
-		DBUnit db;
-		try {
-			db = new DBUnit();
-			db.CreateDataBase("ReportesCheck");
-			db.CreateReporteTable();
-			for (int k = 0; k < name.length; k++){
-				db.AddReportItems(reportes[k]);					
-				db.CreateParagraphTable(reportes[k]);
-				db.AddParagraphItems(reportes[k]);					
-			}
-			db.CloseDataBase();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		CompareUnit cp = new CompareUnit();
+		cp.Compare(reports);
+	
 	}
 	
+	//读取图片
+//	public void readImg(String path, String[] name){
+//		InputStream  in = null;	
+//		for (int i = 0; i < name.length; ++i){
+//			String AbsolutePath=path+"\\"+name[i];
+//			in = new FileInputStream(new File(AbsolutePath));
+//			String[] sp = name[i].split("\\.");
+//			if(sp[sp.length-1].equals("doc")){
+//				_readImgFromDoc(path, name[i]);
+//			}
+//			else{
+//				_readImgFromDocx(path,name[i]); 
+//			}	
+//		}
+//	}
 	
-	
-	//保存对比结果
-	public void Save(Object[] object,String path) throws IOException, WriteException {
-		ArrayList TotalNameList = (ArrayList) object[0];
-		ArrayList TotalSimilaity = (ArrayList) object[1];
-
-		OutputStream os = new FileOutputStream(path);
-		WritableWorkbook wwb = Workbook.createWorkbook(os);
-		WritableSheet ws = wwb.createSheet("sheet1", 0);
-
-		Label numlabel = new Label(0, 0, "学号");  
-		Label namelabel = new Label(1, 0, "姓名");
-		Label Titlelabel = new Label(2, 0, "论文题目");
-		Label Similarity = new Label(5, 0, "相似度");
-		ws.addCell(numlabel);
-		ws.addCell(namelabel);
-		ws.addCell(Titlelabel);
-		ws.addCell(Similarity);
-
-		int k = 1;
-		for (int i = 0; i < TotalNameList.size(); i++) 
-		{
-			Label namelabel2 = new Label(0, k, (String) TotalNameList.get(i));
-			ws.addCell(namelabel2);
-			k++;
-		}
-		int n=2;
-		for(int j=0;j<TotalSimilaity.size();j++)
-		{
-			Label persimilarity=new Label(5,n,(String)TotalSimilaity.get(j)); 
-			ws.addCell(persimilarity);
-			n=n+2;
-		}
-		wwb.write();
-		wwb.close();
-		os.close();
-	}
 }
