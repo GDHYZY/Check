@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -131,10 +132,9 @@ public class DBUnit {
 				sentence = "delete from "+m_report+" where id='"+reporte.StuNum+"';";
 				m_statement.executeUpdate(sentence);
 			}
-			System.out.println(reporte.Path);
 			sentence = "insert into "+m_report+" values('"+reporte.StuNum+"','" + reporte.StuName+"', '"
-					+reporte.ParagraphNum+"', '"+reporte.WordNum+"', '"+ reporte.Path + "', '"
-					+reporte.TextHash+"', '"+ reporte.PicHash+"')";
+					+reporte.ParagraphNum+"', '"+reporte.WordNum+"', '"+ reporte.Path.replaceAll("\\\\","\\\\\\\\") 
+					+ "', '" +reporte.TextHash+"', '"+ reporte.PicHash+"')";
 			m_statement.executeUpdate(sentence);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -177,21 +177,67 @@ public class DBUnit {
 		}
 		return result;
 	}
+	//取出所有的报告  id  name  paragraphnum wordnumber path texthash pichash  Number,Begin, End, Hash
+	public ReportData[] QueryReports(){
+		ArrayList<ReportData> reports = new ArrayList<ReportData>();
+		String sentence =  "select * from "+ m_report + ";";
+		ResultSet resultset = null;
+		try {
+			resultset = m_statement.executeQuery(sentence);
+			while (resultset.next()){
+				ReportData res = new ReportData();
+				res.StuNum = resultset.getString("id");
+				res.StuName = resultset.getString("name");
+				res.ParagraphNum = resultset.getInt("paragraphnum");
+				res.WordNum = resultset.getInt("wordnumber");
+				res.Path = resultset.getString("path");
+				res.TextHash = resultset.getString("texthash");
+				res.PicHash = resultset.getString("pichash");
+				reports.add(res);
+			}
+			resultset.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i = 0; i < reports.size(); ++i){
+			if (ExistParagraphTable(reports.get(i))){
+				resultset = _QueryParagraphHash(reports.get(i));
+				try {
+					while (resultset.next()){
+						reports.get(i).ParagraphHash.put(resultset.getInt("Number"), resultset.getString("Hash"));
+						reports.get(i).ParagraphMsg.put(resultset.getInt("Number"), 
+								new int[] {resultset.getInt("Begin"), resultset.getInt("End")});
+					}
+					resultset.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		
+		ReportData[] ret = new ReportData[reports.size()];
+		reports.toArray(ret);
+		return ret;
+	}
+	
 	//查询数据
 	//通过学号获取报告hash
-	public ReportData QueryReports(String id){
+	public ReportData QueryOneReports(String id){
 		ReportData res = new ReportData();
 		ResultSet result = _QueryReports(id);
 		try {
 			while (result.next())
 			{
-				res.StuNum = result.getString(0);
-				res.StuName = result.getString(1);
-				res.ParagraphNum = result.getInt(2);
-				res.WordNum = result.getInt(3);
-				res.Path = result.getString(4);
-				res.TextHash = result.getString(5);
-				res.PicHash = result.getString(6);
+				res.StuNum = result.getString("id");
+				res.StuName = result.getString("name");
+				res.ParagraphNum = result.getInt("paragraphnum");
+				res.WordNum = result.getInt("wordnumber");
+				res.Path = result.getString("path");
+				res.TextHash = result.getString("texthash");
+				res.PicHash = result.getString("pichash");
 			}
 			result.close();
 		} catch (SQLException e) {
@@ -202,8 +248,9 @@ public class DBUnit {
 			result = _QueryParagraphHash(res);
 			try {
 				while (result.next()){
-					res.ParagraphHash.put(result.getInt(0), result.getString(4));
-					res.ParagraphMsg.put(result.getInt(0), new int[] {result.getInt(2), result.getInt(3)});
+					res.ParagraphHash.put(result.getInt("Number"), result.getString("Hash"));
+					res.ParagraphMsg.put(result.getInt("Number"), 
+							new int[] {result.getInt("Begin"), result.getInt("End")});
 				}
 				result.close();
 			} catch (SQLException e) {

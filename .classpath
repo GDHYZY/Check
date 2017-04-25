@@ -2,19 +2,19 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="xtend-gen"/>
-	<classpathentry kind="lib" path="C:/Javalib/curvesapi-1.04.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/jxl.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/poi-3.15.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/poi-ooxml-3.15.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/poi-scratchpad-3.15.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Javalib/poi-ooxml-schemas-3.15.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/mysql-connector-java-5.1.40-bin.jar"/>
-	<classpathentry kind="lib" path="C:/Javalib/IKAnalyzer2012FF_u1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/curvesapi-1.04.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/jxl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/mysql-connector-java-5.1.40-bin.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/poi-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/poi-ooxml-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/poi-ooxml-schemas-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/poi-scratchpad-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mooncake/Desktop/workspace/ReportCheck/lib/IKAnalyzer2012FF_u1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

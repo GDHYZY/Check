@@ -38,12 +38,37 @@ public class IOUnit {
 //		return false;
 //	}
 	
+	public String getWord(String path) {
+		InputStream in = null;
+		String text = "";
+		try {
+			in = new FileInputStream(new File(path));
+			if (!in.markSupported()) {
+				in = new PushbackInputStream(in, 8);
+			}
+			String[] sp = path.split("\\.");
+			if (sp[sp.length - 1].equals("doc")) {
+				WordExtractor extractor = new WordExtractor(in);
+				text = extractor.getText();
+			} else {
+				XWPFDocument document = new XWPFDocument(in);
+				XWPFWordExtractor extractor = new XWPFWordExtractor(document);
+				text = extractor.getText();
+			}
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return text.trim();
+	}
 	
 	//读取输入的文档
 	public void readWord(String path,String[] name)
-	{
-		InputStream  in = null;		
-		
+	{		
 		ReportData[] reports = new ReportData[name.length];
 		Thread[] thread = new Thread[name.length];
 		
@@ -53,28 +78,16 @@ public class IOUnit {
 				//name 的命名格式为 学号+姓名
 				String text = "";
 				String AbsolutePath=path+"\\"+name[i];
-				in = new FileInputStream(new File(AbsolutePath));
+			
 				String[] sp = name[i].split("\\.");
-				String[] value = sp[0].split("_");
+				String[] value = sp[0].split("-");
 
 				reports[i] = new ReportData();
 				reports[i].StuNum = value[0];
 				reports[i].StuName = value[1];
 				
 				//获取文本
-				if (!in.markSupported()) {  
-                    in = new PushbackInputStream(in,8);
-                }  
-				if(sp[sp.length-1].equals("doc")){
-					WordExtractor extractor = new WordExtractor(in);
-					text = extractor.getText();
-				}
-				else{
-					XWPFDocument document = new XWPFDocument(in);  
-		            XWPFWordExtractor extractor =new XWPFWordExtractor(document);  
-		            text = extractor.getText();   
-				}
-				text = text.trim();
+				text = getWord(AbsolutePath);
 				reports[i].WordNum = text.length();
 				reports[i].Path = AbsolutePath;
 				TextVector tv = new TextVector(text, i, reports);
@@ -85,19 +98,27 @@ public class IOUnit {
 			for(int j = 0; j < name.length; j++){
 				thread[j].join();
 			}		
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		//对比
 		CompareUnit cp = new CompareUnit();
 		cp.Compare(reports);
 	
+//		DBUnit db;
+//		try {
+//			db = new DBUnit();
+//			db.CreateDataBase("reportscheck");
+//			ReportData[] rt = db.QueryReports();
+//			for (int i=0; i < rt.length; i++){
+//				System.out.println(rt[i].Path);
+//			}
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	//读取图片

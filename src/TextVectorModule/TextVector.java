@@ -16,12 +16,12 @@ import jxl.write.biff.RowsExceededException;
 
 
 public class TextVector implements Runnable {
-	private int m_Index = 0;
 	private int m_Paragraph = 0; //段落
 	private int m_Front = 0, m_Last = 0;
 	private String m_Sentence = null;
 	private String m_Doc = "";
 	private ReportData m_Reporte = null;
+	private int m_Level = 100;
 	
 	//判断无意义字符
 	private boolean isMeanless(char ch) {
@@ -93,15 +93,20 @@ public class TextVector implements Runnable {
 	private Map<String, Integer> nextParagraph(String text){
 		Map<String, Integer> res = new HashMap<String, Integer>();	
 		if (m_Last < text.length()){
-			_nextParagraph(text);
-			m_Sentence = text.substring(m_Front,m_Last);
+			int begin = m_Front; 
+			m_Sentence = "";
+			while (m_Last < text.length() && m_Sentence.length() < m_Level){
+				_nextParagraph(text);	
+				m_Sentence += text.substring(m_Front,m_Last).trim();
+				++m_Last;	
+				m_Front = m_Last;
+			}
 			res = MergeVector(res, _BuildWordsVector(m_Sentence));
 			m_Paragraph+=1;
 			m_Reporte.ParagraphHash.put(m_Paragraph, res.toString());
 			m_Reporte.ParagraphNum = m_Paragraph;	
-			m_Reporte.ParagraphMsg.put(m_Paragraph,new int[]{m_Front, m_Last});
-			++m_Last;	
-			m_Front = m_Last;
+			m_Reporte.ParagraphMsg.put(m_Paragraph,new int[]{begin, m_Last-1});
+			System.out.println("para:"+m_Paragraph+":"+begin +" to "+ (m_Last-1));
 		}
 		return res;
 	}
@@ -130,18 +135,6 @@ public class TextVector implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-//			for(int i = 0 ; i < doc.length(); ++i){
-//				char d = doc.charAt(i);
-//				if(!isMeanless(d)){
-//					Integer iv = WordsVector.get(d);
-//					if(iv != null){
-//						iv+=1;
-//					}else{
-//						iv = 1;
-//					}
-//					WordsVector.put(d, iv);
-//				}
-//			}
 		}
 		return WordsVector;
 	}
@@ -149,12 +142,11 @@ public class TextVector implements Runnable {
 	public TextVector(){
 	}
 	
-	public TextVector(String doc, int index, ReportData[] reportes){
+	public TextVector(String doc, int index, ReportData[] reports){
 		assert(! doc.isEmpty());
 		assert(index >= 0);
-		assert(reportes != null);
-		m_Reporte = reportes[index];
-		m_Index = index;
+		assert(reports != null);
+		m_Reporte = reports[index];
 		m_Doc = doc;
 		m_Paragraph = 0;
 		m_Front = m_Last = 0;
