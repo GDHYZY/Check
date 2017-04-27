@@ -106,7 +106,6 @@ public class TextVector implements Runnable {
 			m_Reporte.ParagraphHash.put(m_Paragraph, res.toString());
 			m_Reporte.ParagraphNum = m_Paragraph;	
 			m_Reporte.ParagraphMsg.put(m_Paragraph,new int[]{begin, m_Last-1});
-			System.out.println("para:"+m_Paragraph+":"+begin +" to "+ (m_Last-1));
 		}
 		return res;
 	}
@@ -135,6 +134,8 @@ public class TextVector implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			ik = null;
+			lex = null;
 		}
 		return WordsVector;
 	}

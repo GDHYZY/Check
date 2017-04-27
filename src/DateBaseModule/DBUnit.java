@@ -65,7 +65,7 @@ public class DBUnit {
 	}
 	
 	//创建数据库
-	public boolean CreateDataBase(String name){
+	public boolean CreateandConnectDataBase(String name){
 		try {
 			m_statement = m_connection.createStatement();
 			String sentence = "Create database if not exists " + name + " default character set=utf8;";
@@ -100,6 +100,7 @@ public class DBUnit {
 		}
 		return true;
 	}
+	
 	
 	/*
 	 * 创建报告段落表,表名字为学号+姓名
@@ -217,7 +218,8 @@ public class DBUnit {
 			}
 			
 		}
-		
+		if (reports.size() <=0 )
+			return null;
 		ReportData[] ret = new ReportData[reports.size()];
 		reports.toArray(ret);
 		return ret;

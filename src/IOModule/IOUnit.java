@@ -8,8 +8,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jxl.Workbook;
 import jxl.write.Label;
@@ -23,7 +27,9 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 
+import PicVectorModule.PicVector;
 import TextVectorModule.TextVector;
 import BaseUtil.*;
 import CompareModule.CompareUnit;
@@ -34,26 +40,28 @@ public class IOUnit {
 	 * 输入： 路径， 文件名
 	 * 输出： true代表存在， false代表不存在
 	 */
-//	private Boolean _SingleWord(String path, String name){
-//		return false;
-//	}
 	
 	public String getWord(String path) {
 		InputStream in = null;
 		String text = "";
+		File file = new File(path);
+		if (! file.exists()){
+			System.out.println(path + " is not exists!");
+			return "";
+		}
 		try {
-			in = new FileInputStream(new File(path));
+			in = new FileInputStream(file);
 			if (!in.markSupported()) {
 				in = new PushbackInputStream(in, 8);
 			}
 			String[] sp = path.split("\\.");
 			if (sp[sp.length - 1].equals("doc")) {
 				WordExtractor extractor = new WordExtractor(in);
-				text = extractor.getText();
+				text = extractor.getText().toString();
 			} else {
 				XWPFDocument document = new XWPFDocument(in);
 				XWPFWordExtractor extractor = new XWPFWordExtractor(document);
-				text = extractor.getText();
+				text = extractor.getText().toString();
 			}
 
 		} catch (FileNotFoundException e) {
@@ -70,7 +78,7 @@ public class IOUnit {
 	public void readWord(String path,String[] name)
 	{		
 		ReportData[] reports = new ReportData[name.length];
-		Thread[] thread = new Thread[name.length];
+		Thread[] thread = new Thread[name.length *  2];
 		
 		try {
 			for(int i=0;i<name.length;i++)
@@ -90,51 +98,54 @@ public class IOUnit {
 				text = getWord(AbsolutePath);
 				reports[i].WordNum = text.length();
 				reports[i].Path = AbsolutePath;
+				
+				PicVector pv = null;
+				if (sp[sp.length - 1].equals("doc")){
+					FileInputStream in = new FileInputStream(new File(AbsolutePath));
+					HWPFDocument doc = new HWPFDocument(in);
+					pv = new PicVector(doc, i, reports);
+				}else {
+					FileInputStream fis = new FileInputStream(new File(AbsolutePath));  
+				    XWPFDocument document = new XWPFDocument(fis);  
+				    List<XWPFPictureData> picList = document.getAllPictures();  
+				    pv = new PicVector(i,reports,picList);
+				}
+				
 				TextVector tv = new TextVector(text, i, reports);
 				thread[i] = new Thread(tv);
-				thread[i].start();
+				thread[i+name.length] = new Thread(pv);
 			}
-			//等待线程执行完毕
-			for(int j = 0; j < name.length; j++){
-				thread[j].join();
+			//限制5个线程在跑，等待线程执行完毕
+			for (int i = 0; i < name.length * 2; ){
+				int j = i, k = i;
+				while(j < i + 5 && j < name.length*2){
+					thread[j++].start();
+				}
+				while(k < i + 5 && k < name.length*2){
+					thread[k++].join();
+				}
+				i = j;
+			}
+			//清空线程
+			for(int j = 0; j < name.length * 2; j++){
+				thread[j] = null;
 			}		
+			GlobalData.getSingleton().reInitData();
+			GlobalData.getSingleton().m_InputData = new ArrayList<ReportData>(Arrays.asList(reports));
+			
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		//对比
-		CompareUnit cp = new CompareUnit();
-		cp.Compare(reports);
-	
-//		DBUnit db;
-//		try {
-//			db = new DBUnit();
-//			db.CreateDataBase("reportscheck");
-//			ReportData[] rt = db.QueryReports();
-//			for (int i=0; i < rt.length; i++){
-//				System.out.println(rt[i].Path);
-//			}
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+//		CompareUnit cp = new CompareUnit();
+//		cp.Compare(reports);
 	}
-	
-	//读取图片
-//	public void readImg(String path, String[] name){
-//		InputStream  in = null;	
-//		for (int i = 0; i < name.length; ++i){
-//			String AbsolutePath=path+"\\"+name[i];
-//			in = new FileInputStream(new File(AbsolutePath));
-//			String[] sp = name[i].split("\\.");
-//			if(sp[sp.length-1].equals("doc")){
-//				_readImgFromDoc(path, name[i]);
-//			}
-//			else{
-//				_readImgFromDocx(path,name[i]); 
-//			}	
-//		}
-//	}
-	
 }

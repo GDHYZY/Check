@@ -63,10 +63,10 @@ public class ReportData {
 	
 	//将图片的哈希list转成string ,用来存入数据库
 	public String toPicHashString(ArrayList<int[]> lists){
-		int len = lists.size();
-		if (len <= 0){
-			return "[]";
+		if (lists == null){
+			return "";
 		}
+		int len = lists.size();
 		String res = "[";		
 		for (int i = 0; i < len; ++i){
 			int[] piclist = lists.get(i);
