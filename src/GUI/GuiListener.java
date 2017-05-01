@@ -1,4 +1,4 @@
-package BaseUtil;
+package GUI;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -90,15 +90,15 @@ public class GuiListener implements ActionListener
 				filename=file.getName()+".xls";
 				String writePath=fc.getCurrentDirectory().getAbsolutePath()+"\\"+filename; // 文件保存路径
 
-//				try {
-//					io.Save(object,writePath);
-//				} catch (WriteException e1) {
-//					// TODO 自动生成的 catch 块
-//					e1.printStackTrace();
-//				} catch (IOException e1) {
-//					// TODO 自动生成的 catch 块
-//					e1.printStackTrace();
-//				}
+				try {
+					io.Save();
+				} catch (WriteException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
 				//程序执行完毕后，出现一个对话框来提示
 				JOptionPane.showMessageDialog(null, "查重结果已保存！");	
 				System.exit(0);

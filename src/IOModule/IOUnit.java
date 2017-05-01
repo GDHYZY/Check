@@ -143,9 +143,91 @@ public class IOUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//对比
-//		CompareUnit cp = new CompareUnit();
-//		cp.Compare(reports);
+		CompareUnit cpu= new CompareUnit();
+		cpu.Compare();
 	}
+	
+
+	
+	//保存对比结果
+	public void Save() throws IOException, WriteException {
+		ArrayList<ExportData> output = GlobalData.getSingleton().m_ExportData;
+		if (output == null || output.isEmpty()){
+			return ;
+		}
+		
+		for (int i = 0; i < output.size(); ++i){
+			ExportData export = output.get(i);
+			System.out.println(export.m_Target.StuNum+export.m_Target.StuName+": 总相似度"+String.format("%.2f", (export.m_Similarity*100))
+					+"%");
+//			String text1 = getWord(export.m_Target.Path);
+			
+			for (int j = 0; j < export.m_Sample.size(); ++j){
+				System.out.println("     与"+export.m_Sample.get(j).m_Sampledata.StuNum+export.m_Sample.get(j).m_Sampledata.StuName+
+						"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))+"%");
+//				String text2 = getWord(export.m_Sample.get(j).m_Sampledata.Path);
+				
+				ArrayList<SimilarityParagraph> parlist = export.m_Sample.get(j).m_ParagraphSimilarity;
+				for (int k = 0; k < parlist.size(); ++k){
+					System.out.println("          第"+parlist.get(k).m_TargetParagraph+"与第"+
+							parlist.get(k).m_SampleParagraph+"相似度为"+String.format("%.2f", (100*parlist.get(k).m_Similarity))+"%  有"+
+							parlist.get(k).m_WordNumber+"个词相同");
+//					int[] pos = export.m_Target.ParagraphMsg.get(parlist.get(k).m_TargetParagraph);
+//					String tmp1 = text1.substring(pos[0], pos[1]).trim();
+//					pos = export.m_Sample.get(j).m_Sampledata.ParagraphMsg.get(parlist.get(k).m_SampleParagraph);
+//					String tmp2 = text2.substring(pos[0],pos[1]).trim();
+					
+//					System.out.print("          {");
+//					for (String s: parlist.get(k).m_SimilarityText){
+//						System.out.print(s+",");
+//					}
+//					System.out.println("}");
+					
+//					for (String s: parlist.get(k).m_SimilarityText){
+//						tmp1 = tmp1.replace(s, "`");
+//						tmp2 = tmp2.replace(s,"`");
+//					}
+					
+//					System.out.println(">"+tmp1+"\n>"+tmp2);
+//					System.out.println("-----------------------------------------------------------------");
+				}
+			}
+		}
+		System.out.println();
+		
+//		ArrayList TotalNameList = (ArrayList) object[0];
+//		ArrayList TotalSimilaity = (ArrayList) object[1];
+//
+//		OutputStream os = new FileOutputStream(path);
+//		WritableWorkbook wwb = Workbook.createWorkbook(os);
+//		WritableSheet ws = wwb.createSheet("sheet1", 0);
+//
+//		Label numlabel = new Label(0, 0, "学号");  
+//		Label namelabel = new Label(1, 0, "姓名");
+//		Label Titlelabel = new Label(2, 0, "论文题目");
+//		Label Similarity = new Label(5, 0, "相似度");
+//		ws.addCell(numlabel);
+//		ws.addCell(namelabel);
+//		ws.addCell(Titlelabel);
+//		ws.addCell(Similarity);
+//
+//		int k = 1;
+//		for (int i = 0; i < TotalNameList.size(); i++) 
+//		{
+//			Label namelabel2 = new Label(0, k, (String) TotalNameList.get(i));
+//			ws.addCell(namelabel2);
+//			k++;
+//		}
+//		int n=2;
+//		for(int j=0;j<TotalSimilaity.size();j++)
+//		{
+//			Label persimilarity=new Label(5,n,(String)TotalSimilaity.get(j)); 
+//			ws.addCell(persimilarity);
+//			n=n+2;
+//		}
+//		wwb.write();
+//		wwb.close();
+//		os.close();
+	}
+	
 }

@@ -21,7 +21,7 @@ public class TextVector implements Runnable {
 	private String m_Sentence = null;
 	private String m_Doc = "";
 	private ReportData m_Reporte = null;
-	private int m_Level = 100;
+	private int m_Level = 150;
 	
 	//判断无意义字符
 	private boolean isMeanless(char ch) {

@@ -4,15 +4,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
 
 import com.mysql.fabric.xmlrpc.base.Array;
 
 import BaseUtil.ExportData;
 import BaseUtil.GlobalData;
 import BaseUtil.ReportData;
+import BaseUtil.Sample;
+import BaseUtil.SimilarityParagraph;
 import DateBaseModule.DBUnit;
 import IOModule.IOUnit;
 import jxl.Workbook;
@@ -56,7 +61,7 @@ public class CompareUnit {
 			//2.3 将 ReportData[] 插入到数据库
 //		SaveDatatoDataBase(m_Checkout.toArray(new ReportData[m_Checkout.size()]));
 		//3. 处理相似度高于阈值的报告对
-		ParagraphSimilarity(needcheck);
+		ParagraphSimilarity();
 	}
 	
 	// 将文档集与数据库集进行对比
@@ -129,6 +134,8 @@ public class CompareUnit {
 		try {
 			db = new DBUnit();
 			db.CreateandConnectDataBase("reportscheck");
+			db.CreateReporteTable();
+			
 			rt = db.QueryReports();
 			db.CloseDataBase();
 		} catch (Exception e) {
@@ -172,12 +179,13 @@ public class CompareUnit {
 			return 0;
 		}
 		double max = 0.0;
-		int len = ph1.size();
-		for (int i = 0 ; i < len; ++i){
+		int len1 = ph1.size();
+		int len2 = ph2.size();
+		for (int i = 0 ; i < len1; ++i){
 			int[] a = ph1.get(i);
-			for (int j = 0; j < len; ++j){
+			for (int j = 0; j < len2; ++j){
 				int[] b = ph2.get(j);
-				double hamming =1 - getHammingDistance(a,b);
+				double hamming = 1 - getHammingDistance(a,b);
 				max = max > hamming ? max : hamming;
 			}
 		}
@@ -236,40 +244,188 @@ public class CompareUnit {
 		return res;
 	}
 	
-	// 获取段落相似程度
-	private void ParagraphSimilarity(ArrayList<ReportData[]> reportlist){
-		int listlen = reportlist.size();
-		for (int i = 0; i < listlen; i++){
-			int alen = reportlist.get(i)[0].ParagraphNum;
-			int blen = reportlist.get(i)[1].ParagraphNum;
-			ReportData r1 = (ReportData)reportlist.get(i)[0];
-			ReportData r2 = (ReportData)reportlist.get(i)[1];
-			
-			for (int j = 0; j < alen ; j++){
-				Map<String, Integer> vc1 = r1.toHashMap(r1.ParagraphHash.get(j));
-				Map<String, Integer> vc2 = null;
-				double result = 0.0;
-				int pos = 0;
-				for (int k = 0;k < blen; k++){
-					vc2 = r2.toHashMap(r2.ParagraphHash.get(k));
-					double tmp = getSimilarity(vc1, vc2);
-					if (tmp > result){
-						result = tmp;
-						pos = k;
-					}
-				}
-				vc2 = r2.toHashMap(r2.ParagraphHash.get(pos));
-				if (result > m_Level){
-					IOUnit IO = new IOUnit();
-					String text1 = IO.getWord(r1.Path).substring(r1.ParagraphMsg.get(j)[0], r1.ParagraphMsg.get(j)[1]);
-					String text2 = IO.getWord(r2.Path).substring(r2.ParagraphMsg.get(pos)[0], r2.ParagraphMsg.get(pos)[1]);
-					ArrayList<String> stringlist = getSameWords(text1, text2);
-					if (stringlist == null || stringlist.isEmpty()){
-						
-					}
+	private boolean PicContant(ReportData target, ReportData sample){
+		if (m_Picnopass == null || m_Picnopass.isEmpty())
+			return false;
+		int len = m_Picnopass.size();
+		for (int i = 0; i < len; ++i){
+			if (m_Picnopass.get(i)[0].equals(target)){
+				if (m_Picnopass.get(i)[1].equals(sample)){
+					return true;
 				}
 			}
 		}
+		return false;
+	}
+	
+	// 获取段落相似程度, 并填充输出内容
+	private void ParagraphSimilarity(){
+		if (m_Nopass == null || m_Nopass.isEmpty())
+			return;
+		Iterator<Map.Entry<ReportData, ArrayList<ReportData>>> it = m_Nopass.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<ReportData, ArrayList<ReportData>> entry = it.next();
+			ReportData target = entry.getKey();
+			ArrayList<ReportData> samples = entry.getValue();
+
+			ExportData export = new ExportData();
+			export.m_Target = target;
+			
+			ArrayList<Sample> samplelist = new ArrayList<Sample>();
+			int len = samples.size();
+			for (int i = 0 ; i < len; ++i){
+				ReportData tmp = samples.get(i);
+				Sample sample = new Sample();
+				sample.m_Sampledata = tmp;
+				if (PicContant(target, tmp)){
+					sample.m_PictureSimilarity = true;
+				}
+				ArrayList<SimilarityParagraph> simpara = getParagraphSimilarity(target, tmp);
+				ArrayList<Integer> stringposlist = new ArrayList<Integer>();
+				if (simpara == null){
+					continue;
+				}
+				sample.m_ParagraphSimilarity = simpara;
+				int textwords = 0;
+				for (SimilarityParagraph sim: simpara){
+					textwords += sim.m_WordNumber;
+					ArrayList<Integer> poslist = sim.m_SimilarityposList;
+					stringposlist = getSameWordPosArray(stringposlist, poslist);
+				}
+				sample.m_WordNumber = textwords;
+				sample.m_Similarity = (double)textwords / target.WordNum;
+				sample.m_SimilarityPosList = stringposlist;
+				samplelist.add(sample);
+			}
+			if (!samplelist.isEmpty()){
+				export.m_Sample = samplelist;
+				ArrayList<Integer> targetSameposList = new ArrayList<Integer>();
+				for (Sample _sample : samplelist){
+					targetSameposList = getSameWordPosArray(targetSameposList, _sample.m_SimilarityPosList);
+				}
+				int targetsamelen = targetSameposList.size();
+				int wordnumber = 0;
+				for (int j = 0; j < targetsamelen - 1; j+=2){
+					wordnumber += (targetSameposList.get(j+1) - targetSameposList.get(j));
+				}
+				export.m_WorNumber = wordnumber;
+				export.m_Similarity = (double)wordnumber / target.WordNum;
+			}
+			GlobalData.getSingleton().m_ExportData.add(export);
+		}
+	}
+	
+	private ArrayList<Integer> getSameWordPosArray(ArrayList<Integer> a, ArrayList<Integer> b){
+		if (a == null || a.isEmpty()){
+			return b;
+		} else if (b == null || b.isEmpty()){
+			return a;
+		}
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		int alen = a.size();
+		int blen = b.size();
+		int pos1 = 0, pos2 = 0;		
+		while(pos1 < alen-1 && pos2 < blen-1){
+			int a1 = a.get(pos1), a2 = a.get(pos1+1);
+			int b1 = b.get(pos2), b2 = b.get(pos2+1);
+			if (a1> b2){
+				res.add(b1);
+				res.add(b2);
+				pos2 += 2;
+			} else if (b1 > a2){
+				res.add(a1);
+				res.add(a2);
+				pos1 +=2;
+			} else {
+				res.add(Math.min(a1, b1));
+				res.add(Math.max(a2, b2));
+				pos1+=2; pos2+=2;
+			}
+		}
+		while(pos1 < alen){res.add(a.get(pos1++));}
+		while(pos2 < blen){res.add(b.get(pos2++));}
+		
+		for (int i = 0; i+1 < res.size(); i++){
+			if (res.get(i) >= res.get(i+1)){
+				res.remove(i+1);
+				res.remove(i);
+				i = i - 1;
+			} else {
+				++i;
+			}
+		}
+		return res;
+	}
+	
+	
+	@SuppressWarnings("null")
+	private ArrayList<SimilarityParagraph> getParagraphSimilarity(
+			ReportData target, ReportData sample) {
+		int targetlen = target.ParagraphNum;
+		int samplelen = sample.ParagraphNum;
+		ArrayList<SimilarityParagraph> res = new ArrayList<SimilarityParagraph>();
+
+		for (int j = 0; j < targetlen; j++) {
+			SimilarityParagraph simpar = new SimilarityParagraph();
+
+			Map<String, Integer> vc1 = target.toHashMap(target.ParagraphHash
+					.get(j));
+			Map<String, Integer> vc2 = null;
+			double result = 0.0;
+			int pos = 0;
+			for (int k = 0; k < samplelen; k++) {
+				vc2 = sample.toHashMap(sample.ParagraphHash.get(k));
+				double tmp = getSimilarity(vc1, vc2);
+				if (tmp > result) {
+					result = tmp;
+					pos = k;
+				}
+			}
+			vc2 = sample.toHashMap(sample.ParagraphHash.get(pos));
+
+			if (result > m_Level) {
+				IOUnit IO = new IOUnit();
+				simpar.m_TargetParagraph = j;
+				simpar.m_SampleParagraph = pos;
+
+				String text1 = IO.getWord(target.Path).substring(
+						target.ParagraphMsg.get(j)[0],
+						target.ParagraphMsg.get(j)[1]).trim();
+				String text2 = IO.getWord(sample.Path).substring(
+						sample.ParagraphMsg.get(pos)[0],
+						sample.ParagraphMsg.get(pos)[1]).trim();
+				int len1 = text1.length();
+				// 需要获取段落相似词和位置图和总字数
+				ArrayList<String> stringlist = new ArrayList<String>();
+				ArrayList<Integer> stringposlist = new ArrayList<Integer>();
+				int samenumber = 0;
+				while(true){
+					int[] LCSres = new int[3];
+					LCSres = LongestCommonSubsequence(text1.toCharArray(), text2.toCharArray());
+					if (LCSres[2] < 5)	//最长公共子串长度低于5个
+					{
+						break;
+					}
+					String s = text1.substring(LCSres[0],LCSres[0]+LCSres[2]);
+					text1 = text1.substring(0,LCSres[0]) + text1.substring(LCSres[0]+LCSres[2]);
+					text2 = text2.substring(0,LCSres[1]) + text2.substring(LCSres[1]+LCSres[2]);
+					samenumber += LCSres[2];
+					stringlist.add(s);
+					stringposlist.add(target.ParagraphMsg.get(j)[0]+LCSres[0]);
+					stringposlist.add(target.ParagraphMsg.get(j)[0]+LCSres[0]+LCSres[2]);
+				}
+				Collections.sort(stringposlist);
+				if (!stringlist.isEmpty()) {
+					simpar.m_SimilarityText.addAll(stringlist);
+					simpar.m_WordNumber = samenumber;
+					simpar.m_Similarity = (double)samenumber / len1;
+					simpar.m_SimilarityText = stringlist;
+					simpar.m_SimilarityposList = stringposlist;
+					res.add(simpar);
+				}
+			}
+		}
+		return res.isEmpty() ? null : res;
 	}
 	
 	// 获取报告的相似程度
@@ -283,9 +439,10 @@ public class CompareUnit {
 		for (int i = 0; i < len; i++) {
 			ReportData r1 = reports.get(i);
 			ArrayList<ReportData> sample = new ArrayList<ReportData>();
-			for (int j = 0; j < len; j++) {	
-				if (i == j)
-					continue;
+			for (int j = 0; j < len; j++) {
+				if (i == j){
+					continue;					
+				}
 				ReportData r2 = reports.get(j);
 				double result = getSimilarity(r1.toHashMap(r1.TextHash),
 						r2.toHashMap(r2.TextHash));
@@ -313,26 +470,7 @@ public class CompareUnit {
 		return res.isEmpty()? null : res;
 	}
 	
-	private ArrayList<String> getSameWords(String str1, String str2){
-		int[] res = new int[3];
-		ArrayList<String> result = new ArrayList<String>();
-		int samenumber = 0;
-		while(true){
-			res = LongestCommonSubsequence(str1.toCharArray(), str2.toCharArray());
-			if (res[2] < 5)	//最长公共子串长度低于5个
-			{
-				break;
-			}
-			String s = str1.substring(res[0],res[0]+res[3]);
-			str1 = str1.substring(0,res[0]) + str1.substring(res[0]+res[3]);
-			str2 = str2.substring(0,res[0]) + str2.substring(res[0]+res[3]);
-			samenumber += res[3];
-			result.add(s);
-		}
-		return result.isEmpty() ? null: result;
-	}
-	
-	//求两个文本的最长公共字串 返回值 int[] {第一段的开始， 第二段的开始， 公共长度}
+	//求两个文本的最长公共字串 返回值 int[] {第一段的开始， 第二段的开始， 公共长度} 复杂度O(n)
 	private int[] LongestCommonSubsequence(char[] str1, char[] str2){
 		int size1 = str1.length;
         int size2 = str2.length;
@@ -399,48 +537,10 @@ public class CompareUnit {
                 ++n;
             }
         }
-        System.out.printf("from %d of str1 and %d of str2, compared for %d times\n", start1, start2, comparisons);
         res[0] = start1;
         res[1] = start2;
         res[2] = longest;
         return res;
 	}
 	
-	
-	//保存对比结果
-	public void Save(Object[] object,String path) throws IOException, WriteException {
-		ArrayList TotalNameList = (ArrayList) object[0];
-		ArrayList TotalSimilaity = (ArrayList) object[1];
-
-		OutputStream os = new FileOutputStream(path);
-		WritableWorkbook wwb = Workbook.createWorkbook(os);
-		WritableSheet ws = wwb.createSheet("sheet1", 0);
-
-		Label numlabel = new Label(0, 0, "学号");  
-		Label namelabel = new Label(1, 0, "姓名");
-		Label Titlelabel = new Label(2, 0, "论文题目");
-		Label Similarity = new Label(5, 0, "相似度");
-		ws.addCell(numlabel);
-		ws.addCell(namelabel);
-		ws.addCell(Titlelabel);
-		ws.addCell(Similarity);
-
-		int k = 1;
-		for (int i = 0; i < TotalNameList.size(); i++) 
-		{
-			Label namelabel2 = new Label(0, k, (String) TotalNameList.get(i));
-			ws.addCell(namelabel2);
-			k++;
-		}
-		int n=2;
-		for(int j=0;j<TotalSimilaity.size();j++)
-		{
-			Label persimilarity=new Label(5,n,(String)TotalSimilaity.get(j)); 
-			ws.addCell(persimilarity);
-			n=n+2;
-		}
-		wwb.write();
-		wwb.close();
-		os.close();
-	}
 }

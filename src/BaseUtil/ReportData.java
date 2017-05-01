@@ -41,7 +41,7 @@ public class ReportData {
 	
 	//将图片的哈希String转成list, 用于从数据库取出
 	public ArrayList<int[]> toPicHashList(String src){
-		if (src == null || src=="[]"){
+		if (src == null || src=="[]" || src == ""){
 			return null;
 		}
 		String hash = src.substring(1, src.length()-1);
