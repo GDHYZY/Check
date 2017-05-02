@@ -7,11 +7,13 @@ import java.util.Map;
 public class ReportData {
 	public int ParagraphNum = 0;
 	public int WordNum = 0;
-	public String StuNum = "";
-	public String StuName = "";
+	public String Title = "";
+//	public String StuNum = "";
+//	public String StuName = "";
+	public String Path = "";
+	public String Date = "";
 	public String TextHash = "";
 	public String PicHash = "";
-	public String Path = "";
 	public Map<Integer, String> ParagraphHash = null;
 	public Map<Integer, int[]> ParagraphMsg = null;
 	

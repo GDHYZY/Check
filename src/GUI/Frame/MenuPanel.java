@@ -1,11 +1,12 @@
-package frame;
+package GUI.Frame;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
 import javax.swing.JPanel;
 
-import listener.MenuListener;
+import GUI.Listener.MenuListener;
+
 
 public class MenuPanel extends JPanel {
 	/**
@@ -23,37 +24,20 @@ public class MenuPanel extends JPanel {
 	public MenuPanel() {
 		setOpaque(false);
 		setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 15));
-		setPreferredSize(new Dimension(200, 600));
+		setPreferredSize(new Dimension(150, 300));
 
-		ImageButton jbtRoomsBooked, jbtRoomsTaken, jbtExpiredRooms, jbtRooms, jbtRoomTypes, jbtFoods;
-		jbtRoomsBooked = new ImageButton("menu", "“—∂©∑øº‰", 16);
-		jbtRoomsTaken = new ImageButton("menu", "“—ƒ√∑øº‰", 16);
-		jbtExpiredRooms = new ImageButton("menu", "π˝∆⁄∑øº‰", 16);
-		jbtRooms = new ImageButton("menu", "∑øº‰π‹¿Ì", 16);
-		jbtRoomTypes = new ImageButton("menu", "∑øº‰¿‡–Õ", 16);
-		jbtFoods = new ImageButton("menu", " ≥ŒÔπ‹¿Ì", 16);
+		ImageButton jbtCheckList, jbtDBList;
+		jbtCheckList = new ImageButton("menu", "ÂæÖÊü•ÂàóË°®", 16);
+		jbtDBList = new ImageButton("menu", "Êï∞ÊçÆÂ∫ìÊ†∑Êú¨", 16);
 
-		jbtRoomsBooked.setPreferredSize(new Dimension(180, 50));
-		jbtRoomsTaken.setPreferredSize(new Dimension(180, 50));
-		jbtExpiredRooms.setPreferredSize(new Dimension(180, 50));
-		jbtRooms.setPreferredSize(new Dimension(180, 50));
-		jbtRoomTypes.setPreferredSize(new Dimension(180, 50));
-		jbtFoods.setPreferredSize(new Dimension(180, 50));
+		jbtCheckList.setPreferredSize(new Dimension(180, 50));
+		jbtDBList.setPreferredSize(new Dimension(180, 50));
 
-		MenuListener menuListener = new MenuListener(jbtRoomsBooked,
-				jbtRoomsTaken, jbtExpiredRooms, jbtRooms, jbtRoomTypes, jbtFoods);
-		jbtRoomsBooked.addActionListener(menuListener);
-		jbtRoomsTaken.addActionListener(menuListener);
-		jbtExpiredRooms.addActionListener(menuListener);
-		jbtRooms.addActionListener(menuListener);
-		jbtRoomTypes.addActionListener(menuListener);
-		jbtFoods.addActionListener(menuListener);
-
-		add(jbtRoomsBooked);
-		add(jbtRoomsTaken);
-		add(jbtExpiredRooms);
-		add(jbtRooms);
-		add(jbtRoomTypes);
-		add(jbtFoods);
+		MenuListener menuListener = new MenuListener(jbtCheckList, jbtDBList);
+		jbtCheckList.addActionListener(menuListener);
+		jbtDBList.addActionListener(menuListener);
+	
+		add(jbtCheckList);
+		add(jbtDBList);
 	}
 }

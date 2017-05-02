@@ -36,7 +36,7 @@ public class OptionPanel extends JPanel {
 		jbtDataBase.setToolTipText("  保存到数据库  ");
 		jbtInportFiles.setToolTipText("  导入文件  ");
 		jbtCheck.setToolTipText("  开始检测  ");
-		jbtConfig.setToolTipText("  设置  ");
+		jbtConfig.setToolTipText("  数据库设置  ");
 		jbtExportReport.setToolTipText("  导出报告  ");
 		jbtExit.setToolTipText("  退出  ");
 

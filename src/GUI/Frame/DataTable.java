@@ -1,6 +1,7 @@
-package frame;
+package GUI.Frame;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 
 import javax.swing.JComponent;
@@ -13,7 +14,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import dao.ConfigDao;
 
 public class DataTable extends JTable {
 	/**
@@ -33,7 +33,7 @@ public class DataTable extends JTable {
 		setRowHeight(30);
 		setOpaque(false);
 		setRowSorter(new TableRowSorter<TableModel>(getModel()));
-		setFont(ConfigDao.instance().getConfig().getFont());
+		setFont(new Font("微软雅黑", Font.PLAIN, 14));
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class DataTable extends JTable {
 		DefaultTableCellRenderer hr = (DefaultTableCellRenderer) tableHeader
 				.getDefaultRenderer();
 		hr.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
-		tableHeader.setFont(ConfigDao.instance().getConfig().getFont());
+		tableHeader.setFont(new Font("微软雅黑", Font.PLAIN, 14));
 		return tableHeader;
 	}
 

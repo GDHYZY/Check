@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PushbackInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,11 +90,13 @@ public class IOUnit {
 				String AbsolutePath=path+"\\"+name[i];
 			
 				String[] sp = name[i].split("\\.");
-				String[] value = sp[0].split("-");
 
 				reports[i] = new ReportData();
-				reports[i].StuNum = value[0];
-				reports[i].StuName = value[1];
+				reports[i].Title = name[i];
+//				reports[i].StuNum = value[0];
+//				reports[i].StuName = value[1];
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+				reports[i].Date = df.format(new Date());
 				
 				//获取文本
 				text = getWord(AbsolutePath);
@@ -130,9 +134,8 @@ public class IOUnit {
 			for(int j = 0; j < name.length * 2; j++){
 				thread[j] = null;
 			}		
-			GlobalData.getSingleton().reInitData();
-			GlobalData.getSingleton().m_InputData = new ArrayList<ReportData>(Arrays.asList(reports));
 			
+			GlobalData.getSingleton().m_InputData.addAll(new ArrayList<ReportData>(Arrays.asList(reports)));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -143,8 +146,6 @@ public class IOUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		CompareUnit cpu= new CompareUnit();
-		cpu.Compare();
 	}
 	
 
@@ -158,12 +159,12 @@ public class IOUnit {
 		
 		for (int i = 0; i < output.size(); ++i){
 			ExportData export = output.get(i);
-			System.out.println(export.m_Target.StuNum+export.m_Target.StuName+": 总相似度"+String.format("%.2f", (export.m_Similarity*100))
+			System.out.println(export.m_Target.Title +": 总相似度"+String.format("%.2f", (export.m_Similarity*100))
 					+"%");
 //			String text1 = getWord(export.m_Target.Path);
 			
 			for (int j = 0; j < export.m_Sample.size(); ++j){
-				System.out.println("     与"+export.m_Sample.get(j).m_Sampledata.StuNum+export.m_Sample.get(j).m_Sampledata.StuName+
+				System.out.println("     与"+export.m_Sample.get(j).m_Sampledata.Title+
 						"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))+"%");
 //				String text2 = getWord(export.m_Sample.get(j).m_Sampledata.Path);
 				

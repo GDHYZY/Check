@@ -1,4 +1,4 @@
-package listener;
+package GUI.Listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,26 +11,23 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.table.DefaultTableModel;
 
-import dao.BookingDao;
-import dao.FoodDao;
-import dao.RoomDao;
-import dao.RoomTypeDao;
-import entity.Booking;
-import entity.Food;
-import entity.Room;
-import entity.RoomType;
-import frame.AddFoodDialog;
-import frame.AddRoomDialog;
-import frame.AddRoomTypeDialog;
-import frame.BuyFoodDialog;
-import frame.DataTable;
-import frame.EditRoomTypeDialog;
-import frame.MainPanel;
+import BaseUtil.GlobalData;
+import GUI.Frame.BackgroundPanel;
+import GUI.Frame.DataBaseConfigDialog;
+import GUI.Frame.DataTable;
+import GUI.Frame.MainFrame;
+import GUI.Frame.MainPanel;
+
 
 public class TableListener extends MouseAdapter implements ActionListener {
 	private DataTable table;
 	private JPopupMenu menu;
 
+	public TableListener(DataTable table, JPopupMenu menu){
+		this.table = table;
+		this.menu = menu;
+	}
+	
 	public TableListener(JPopupMenu menu) {
 		this.table = MainPanel.instance().getTable();
 		this.menu = menu;
@@ -54,116 +51,45 @@ public class TableListener extends MouseAdapter implements ActionListener {
 			menu.show(table, e.getX(), e.getY());
 		}
 	}
+	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (table.getSelectedRow() < 0)
 			return;
 		String strAction = ((JMenuItem) e.getSource()).getText().trim();
-		if (!isSure("<html>ƒ˙»∑∂®“™Ω¯––<b><font size=6> " + strAction
-				+ " </font></b>≤Ÿ◊˜¬£ø"))
+		if (!isSure("<html>ÊÇ®Á°ÆÂÆöË¶ÅËøõË°å<b><font size=6> " + strAction
+				+ " </font></b>Êìç‰ΩúÂêóÔºü"))
 			return;
-		if (strAction.equals("ÃÌº”æ∆ÀÆ")) {
-			BuyFoodDialog.instance().open();
-			return;
-		} else if (strAction.equals("∑øº‰Ω·À„")) {
-			String tmpStr = getSelectedValue(0);
-			if (tmpStr == null)
-				return;
-			Room room = RoomDao.instance().getRoom(Integer.parseInt(tmpStr));
+		
+		if (strAction.equals("Êü•ÁúãÊä•Âëä")){
+			
+		} else if (strAction.equals("Âà†Èô§È°πÁõÆ")){
+			for (int row : table.getSelectedRows()) {
+//				GlobalData.getSingleton().m_DataBase.DeleteOneDataBase(getSelectedValue(row));
+			}
 			removeSelectedRow();
-			JOptionPane.showMessageDialog(null,
-					"<html>Ω·À„≥…π¶£°◊‹œ˚∑—<b><font size=8>  " + room.getMoney()
-							+ " </font></b>‘™°£");
-			room.end();
-			return;
-		} else if (strAction.equals("∑øº‰º”÷”")) {
-			String tmpStr = getSelectedValue(0);
-			if (tmpStr == null)
-				return;
-			DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-			Room room = RoomDao.instance().getRoom(Integer.parseInt(tmpStr));
-			room.addHours();
-			SimpleDateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss");
-			tableModel.setValueAt(room.getMoney(), table.getSelectedRow(), 2);
-			tableModel.setValueAt(formatter.format(room.getEndTime()),
-					table.getSelectedRow(), 4);
-		} else if (strAction.equals("ø™Õ®∑øº‰")) {
-			String tmpStr = getSelectedValue(2);
-			if (tmpStr == null)
-				return;
-			BookingDao bookingDao = BookingDao.instance();
-			Booking booking = bookingDao.getBooking(tmpStr);
-			RoomDao.instance().getRoom(booking.getRoomId())
-					.take(booking.getHours());
-			bookingDao.removeBooking(booking);
+		} else if (strAction.equals("ËøûÊé•Êï∞ÊçÆÂ∫ì")){
+			String name = getSelectedValue(0);
+			GlobalData.getSingleton().m_DataBase.CreateandConnectDataBase(name);
+			DataBaseConfigDialog.instance().dispose();
+			MainFrame.instance().setTitle("Êä•ÂëäÊü•ÈáçÁ≥ªÁªü-"+name);
+		} else if (strAction.equals("Âà†Èô§Êï∞ÊçÆÂ∫ì")){
+			GlobalData.getSingleton().m_DataBase.InitDataBases();
+			for (int row : table.getSelectedRows()) {
+				GlobalData.getSingleton().m_DataBase.DeleteOneDataBase(getValue(row, 0));
+			}
 			removeSelectedRow();
-			JOptionPane.showMessageDialog(
-					null,
-					"<html>ø™Õ®∑øº‰≥…π¶£°∑øº‰∫≈£∫<b><font size=8>  "
-							+ booking.getRoomNumber() + " </font></b>");
-			return;
-		} else if (strAction.equals("…æ≥˝∂©µ•")) {
-			BookingDao bookingDao = BookingDao.instance();
-			for (int row : table.getSelectedRows()) {
-				Booking booking = bookingDao.getBooking(getValue(row, 2));
-				bookingDao.removeBooking(booking);
-			}
-			removeSelectedRows();
-		} else if (strAction.equals("ÃÌº”∑øº‰")) {
-			AddRoomDialog.instance().open(false);
-			return;
-		} else if (strAction.equals("≈˙¡øÃÌº”")) {
-			AddRoomDialog.instance().open(true);
-			return;
-		} else if (strAction.equals("…æ≥˝∑øº‰")) {
-			RoomDao roomDao = RoomDao.instance();
-			for (int row : table.getSelectedRows()) {
-				Room room = roomDao.getRoom(Integer.parseInt(getValue(row, 0)));
-				roomDao.removeRoom(room);
-			}
-			removeSelectedRows();
-		} else if (strAction.equals("ÃÌº” ≥∆∑")) {
-			AddFoodDialog.instance().open();
-			return;
-		} else if (strAction.equals("…æ≥˝ ≥∆∑")) {
-			FoodDao foodDao = FoodDao.instance();
-			for (int row : table.getSelectedRows()) {
-				Food food = foodDao.getFoodbyId(Integer.parseInt(getValue(row,
-						0)));
-				if (food == null)
-					return;
-				foodDao.removeFood(food);
-			}
-			removeSelectedRows();
-		} else if (strAction.equals("ÃÌº”¿‡–Õ")) {
-			AddRoomTypeDialog.instance().open();
-			return;
-		} else if (strAction.equals("±‡º≠¿‡–Õ")) {
-			RoomTypeDao roomTypeDao = RoomTypeDao.instance();
-			RoomType roomType = roomTypeDao.getRoomTypebyId(Integer
-					.parseInt(getValue(table.getSelectedRow(), 0)));
-			if (roomType == null)
-				return;
-			EditRoomTypeDialog.instance().open(roomType);
-			return;
-		} else if (strAction.equals("…æ≥˝¿‡–Õ")) {
-			RoomTypeDao roomTypeDao = RoomTypeDao.instance();
-			for (int row : table.getSelectedRows()) {
-				RoomType roomType = roomTypeDao.getRoomTypebyId(Integer
-						.parseInt(getValue(row, 0)));
-				if (roomType == null)
-					return;
-				roomTypeDao.removeRoomType(roomType);
-			}
-			removeSelectedRows();
-		}
-		JOptionPane.showMessageDialog(null, strAction + "≥…π¶£°");
+		} else if (strAction.equals("Ê∏ÖÁ©∫Êï∞ÊçÆÂ∫ì")){
+			GlobalData.getSingleton().m_DataBase.InitDataBases();
+			GlobalData.getSingleton().m_DataBase.ClearDataBase();
+			DataBaseConfigDialog.instance().open();
+		} 
+		JOptionPane.showMessageDialog(null, strAction + "ÊàêÂäüÔºÅ");
 	}
 
 	private boolean isSure(String msg) {
-		return (JOptionPane.showConfirmDialog(null, msg, "œ˚œ¢",
+		return (JOptionPane.showConfirmDialog(null, msg, "Ê∂àÊÅØ",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
 	}
 
@@ -184,23 +110,5 @@ public class TableListener extends MouseAdapter implements ActionListener {
 		tableModel.removeRow(table.getSelectedRow());
 	}
 
-	private void removeSelectedRows() {
-		if (table.getSelectedRow() < 0)
-			return;
-		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-		boolean isEndSelect = false;
-		if (table.getSelectedRows()[table.getSelectedRows().length - 1] == tableModel
-				.getRowCount() - 1) {
-			isEndSelect = true;
-		}
-		while (table.getSelectedRow() >= 0) {
-			tableModel.removeRow(table.getSelectedRow());
-		}
-		if (isEndSelect && tableModel.getRowCount() > 0) {
-			tableModel.removeRow(tableModel.getRowCount() - 1);
-		}
-		if (tableModel.getRowCount() <= 0) {
-			MainPanel.instance().refresh();
-		}
-	}
+	
 }

@@ -89,7 +89,7 @@ public class CompareUnit {
 					}
 					tmp.add(dbdatas[j]);
 					mp[i] = 1;
-					System.out.println(needcheck[i].StuNum+needcheck[i].StuName+" 和  "+dbdatas[j].StuNum+dbdatas[j].StuName+ "的相似度为" + result);
+					System.out.println(needcheck[i].Title+" 和  "+dbdatas[j].Title+ "的相似度为" + result);
 				}
 				//排除掉待测集中认为是无需查重的但与数据库集有重复的文档
 				if (mp[i]==1 && m_Checkout.contains(needcheck[i])){		
@@ -402,7 +402,7 @@ public class CompareUnit {
 				while(true){
 					int[] LCSres = new int[3];
 					LCSres = LongestCommonSubsequence(text1.toCharArray(), text2.toCharArray());
-					if (LCSres[2] < 5)	//最长公共子串长度低于5个
+					if (LCSres[2] < 13)	//连续13个词做为标准  同知网
 					{
 						break;
 					}
@@ -456,7 +456,7 @@ public class CompareUnit {
 				if (result > m_Level){  //说明重复率超过标准
 					sample.add(r2);
 					mp[i] = mp[j] = 1;
-					System.out.println(r1.StuNum+r1.StuName+" 和  "+r2.StuNum+r2.StuName+ "的相似度为" + result);
+					System.out.println(r1.Title+" 和  "+r2.Title+ "的相似度为" + result);
 				}
 			}
 			res.put(r1, sample);

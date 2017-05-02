@@ -17,9 +17,10 @@ import BaseUtil.ReportData;
 
 
 public class DBUnit {
-	String checkTable="show tables like \"userbrandtime\"";  
-	String url="jdbc:mysql://localhost:3306/mysql?useUnicode=true&characterEncoding=utf-8"; //JDBC的URL 
-	String m_report = "Reports";
+	private String url="jdbc:mysql://localhost:3306/mysql?useUnicode=true&characterEncoding=utf-8"; //JDBC的URL 
+	private String m_report = "Reports";					//报告表
+	private String m_DataBase = "ReportsDataBase";			//管理数据库的名字
+	public String m_CurrentDataBase = ""; 					//当前数据库的名字
 
 	Connection m_connection;
 	Statement m_statement;
@@ -31,15 +32,106 @@ public class DBUnit {
             
 			m_connection = DriverManager.getConnection(url, "root", "");
 
+			InitDataBases();
+			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			System.out.println("连接到数据库失败！");
 			e.printStackTrace();
 		} 
 	}
+	
+	// 管理数据库的数据库
+	// 初始化数据库
+	public void InitDataBases() {
+		try {
+			m_CurrentDataBase = m_DataBase;
+			
+			m_statement = m_connection.createStatement();
+			String sentence = "Create database if not exists " + m_DataBase
+					+ " default character set=utf8;";
+			m_statement.executeUpdate(sentence);
+
+			m_statement.close();
+			m_connection.close();
+
+			url = "jdbc:mysql://localhost:3306/" + m_DataBase
+					+ "?useUnicode=true&characterEncoding=utf-8";
+			m_connection = DriverManager.getConnection(url, "root", "");
+			m_statement = m_connection.createStatement();
+			
+			//创建表
+			sentence = "Create table if not exists " + m_DataBase + "(name VARCHAR(30) primary key)";
+			m_statement.executeUpdate(sentence);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	// 创建一个数据库
+	public void CreateOneDataBase(String name){
+		InitDataBases();
+		try {
+			String sentence = "select * from " + m_DataBase + " where name = '"
+					+ name + "';";
+			ResultSet rs = m_statement.executeQuery(sentence);
+			if (!rs.next()) {
+				sentence = "Insert into " + m_DataBase + " value('" + name
+						+ "');";
+				m_statement.executeUpdate(sentence);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	//查看数据库
+	public ArrayList<String> QueryDataBase(){
+		ArrayList<String> res = new ArrayList<String>();
+		String sentence = "select * from " + m_DataBase + ";";
+		ResultSet rs;
+		try {
+			rs = m_statement.executeQuery(sentence);
+			while(rs.next()){
+				String s = rs.getString("name");
+				res.add(s);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return res.isEmpty()? null : res;
+	}
+	//删除数据库
+	public void DeleteOneDataBase(String name){
+		String sentence = "delete from " + m_DataBase + " where name='" +name+ "';";
+		try {
+			m_statement.executeUpdate(sentence);
+			sentence =  "drop tables " + name + ";";
+			m_statement.executeUpdate(sentence);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	//清空数据库
+	public void ClearDataBase(){
+		String sentence = "delete from " + m_DataBase + ";";
+		try {
+			m_statement.executeUpdate(sentence);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	//具体数据库 
 	//判断是否存在报告表的项
 	private boolean ExistReportItem(ReportData reporte){
-		String sentence = "select * from " + m_report + " where id='" + reporte.StuNum + "';";
+		String sentence = "select * from " + m_report + " where title='" + reporte.Title + "';";
 		try {
 			ResultSet rs = m_statement.executeQuery(sentence);
 			return !rs.wasNull();
@@ -50,7 +142,7 @@ public class DBUnit {
 	}
 	//判断是否存在报告的段落数据库
 	private boolean ExistParagraphTable(ReportData reporte){
-		String sentence = "show tables like \"" + reporte.StuNum + reporte.StuName +"\";";
+		String sentence = "show tables like \"" + reporte.Title +"\";";
 		try {
 			ResultSet rs = m_statement.executeQuery(sentence);
 			if (rs.next()){
@@ -77,6 +169,9 @@ public class DBUnit {
 			url = "jdbc:mysql://localhost:3306/" + name + "?useUnicode=true&characterEncoding=utf-8";
 			m_connection = DriverManager.getConnection(url,"root","");
 			m_statement = m_connection.createStatement();
+			m_CurrentDataBase = name;
+			
+			CreateReporteTable();
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -86,13 +181,13 @@ public class DBUnit {
 		return true;
 	}
 	/* 创建Reportes表
-	 * id  name  paragraphnum wordnumber path texthash pichash 
+	 * Title  paragraphnum wordnumber path date texthash pichash 
 	 */
 	public boolean CreateReporteTable(){
 		try {
 			String sentence = "create table if not exists " + m_report + 
-					" (id varchar(11) primary key,name varchar(10) not null,paragraphnum int,"
-					+ "wordnumber int,path TEXT,texthash TEXT,pichash TEXT)";
+					" (title VARCHAR(50) primary key ,paragraphnum int,"
+					+ "wordnumber int,path TEXT, date TEXT, texthash TEXT,pichash TEXT)";
 			m_statement.executeUpdate(sentence);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -111,10 +206,10 @@ public class DBUnit {
 		try {
 			if (ExistParagraphTable(reporte)){
 				//如果存在这个表，先删除
-				sentence = "drop tables " + reporte.StuNum + reporte.StuName + ";";
+				sentence = "drop tables " + reporte.Title + ";";
 				m_statement.executeUpdate(sentence);
 			}
-			sentence = "create table if not exists " + reporte.StuNum + reporte.StuName + 
+			sentence = "create table if not exists " + reporte.Title + 
 				" (Number int primary key,Begin int,End int,Hash TEXT)";
 			m_statement.executeUpdate(sentence);
 		} catch (SQLException e) {
@@ -130,11 +225,11 @@ public class DBUnit {
 		try {
 			if (ExistReportItem(reporte)){
 				//如果存在这项，先删除再写入新的
-				sentence = "delete from "+m_report+" where id='"+reporte.StuNum+"';";
+				sentence = "delete from "+m_report+" where title='"+reporte.Title+"';";
 				m_statement.executeUpdate(sentence);
 			}
-			sentence = "insert into "+m_report+" values('"+reporte.StuNum+"','" + reporte.StuName+"', '"
-					+reporte.ParagraphNum+"', '"+reporte.WordNum+"', '"+ reporte.Path.replaceAll("\\\\","\\\\\\\\") 
+			sentence = "insert into "+m_report+" values('"+reporte.Title+"','" + reporte.ParagraphNum+"', '"
+			+reporte.WordNum+"', '"+ reporte.Path.replaceAll("\\\\","\\\\\\\\") +  reporte.Date
 					+ "', '" +reporte.TextHash+"', '"+ reporte.PicHash+"')";
 			m_statement.executeUpdate(sentence);
 		} catch (SQLException e) {
@@ -156,7 +251,7 @@ public class DBUnit {
 				String value = entry.getValue();
 				int begin = entry2.getValue()[0];
 				int end = entry2.getValue()[1];
-				String sentence = "insert into "+reporte.StuNum+reporte.StuName+" values("+key+", "
+				String sentence = "insert into "+reporte.Title +" values("+key+", "
 				+ begin +", " + end +", '"+value+ "')";
 				m_statement.executeUpdate(sentence);			
 			}
@@ -187,11 +282,11 @@ public class DBUnit {
 			resultset = m_statement.executeQuery(sentence);
 			while (resultset.next()){
 				ReportData res = new ReportData();
-				res.StuNum = resultset.getString("id");
-				res.StuName = resultset.getString("name");
+				res.Title = resultset.getString("title");
 				res.ParagraphNum = resultset.getInt("paragraphnum");
 				res.WordNum = resultset.getInt("wordnumber");
 				res.Path = resultset.getString("path");
+				res.Date = resultset.getString("date");
 				res.TextHash = resultset.getString("texthash");
 				res.PicHash = resultset.getString("pichash");
 				reports.add(res);
@@ -233,11 +328,11 @@ public class DBUnit {
 		try {
 			while (result.next())
 			{
-				res.StuNum = result.getString("id");
-				res.StuName = result.getString("name");
+				res.Title = result.getString("title");
 				res.ParagraphNum = result.getInt("paragraphnum");
 				res.WordNum = result.getInt("wordnumber");
 				res.Path = result.getString("path");
+				res.Date = result.getString("date");
 				res.TextHash = result.getString("texthash");
 				res.PicHash = result.getString("pichash");
 			}
@@ -265,7 +360,7 @@ public class DBUnit {
 	}
 	
 	private ResultSet _QueryParagraphHash(ReportData rd){
-		String sentence = "select * from "+ rd.StuNum + rd.StuName+ " ;";
+		String sentence = "select * from "+ rd.Title + " ;";
 		ResultSet result = null;
 		try {
 			result = m_statement.executeQuery(sentence);

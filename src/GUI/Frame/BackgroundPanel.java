@@ -1,4 +1,4 @@
-package frame;
+package GUI.Frame;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,9 +6,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import dao.ConfigDao;
 
 public class BackgroundPanel extends JPanel {
 
@@ -25,13 +25,14 @@ public class BackgroundPanel extends JPanel {
 
 	public void paint(Graphics g) {
 		super.paint(g);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension screenSize = MainFrame.instance().getContentPane().getSize();
 		setBounds(0, 0, (int) screenSize.getWidth(),
 				(int) screenSize.getHeight());
-		String copyright = ConfigDao.instance().getConfig().getCopyright();
-		g.drawImage(ConfigDao.instance().getConfig().getBackgroundImage()
-				.getImage(), 0, 0, getWidth(), getHeight(), this);
-		g.setFont(new Font("ºÚÌå", Font.PLAIN, 16));
+		String copyright = "CopyRight 2017";
+		g.drawImage(new ImageIcon(this.getClass().getResource("/images/bg.jpg")).getImage(),
+				0, 0, getWidth(), getHeight(), this);
+		
+		g.setFont(new Font("é»‘ä½“", Font.PLAIN, 16));
 		g.setColor(Color.GRAY);
 		g.drawString(copyright, 10, getHeight() - 10);
 		MainFrame.instance().repaint();

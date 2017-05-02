@@ -1,11 +1,11 @@
-package frame;
+package GUI.Frame;
 
 import java.awt.Graphics;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
-import com.sun.awt.AWTUtilities;
+//import com.sun.awt.AWTUtilities;
 
 public class LoadingFrame extends JFrame implements Runnable {
 	/**
@@ -21,13 +21,13 @@ public class LoadingFrame extends JFrame implements Runnable {
 	}
 
 	public LoadingFrame() {
-		super("KTV管理系统");
+		super("鎶ュ憡鏌ラ噸绯荤粺");
 		setSize(300, 300);
 		loadingFrame = this;
 		setUndecorated(true);
 		setAlwaysOnTop(true);
 		setLocationRelativeTo(null);
-		AWTUtilities.setWindowOpaque(this, false);
+//		AWTUtilities.setWindowOpaque(this, false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource(
 				"/images/icon.png")).getImage());

@@ -1,4 +1,4 @@
-package frame;
+package GUI.Frame;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +10,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import dao.ConfigDao;
 
 public class ImageButton extends JButton implements MouseListener {
 
@@ -43,14 +42,13 @@ public class ImageButton extends JButton implements MouseListener {
 		textPanel.setVerticalAlignment(JLabel.CENTER);
 		textPanel.setHorizontalAlignment(JLabel.CENTER);
 		textPanel.setForeground(Color.LIGHT_GRAY);
-		textPanel.setFont(ConfigDao.instance().getConfig().getFont());
+		textPanel.setFont(new Font("微软雅黑",Font.PLAIN, 14));
 		add(textPanel);
 	}
 
 	public ImageButton(String btnname, String text, int size) {
 		this(btnname, text);
-		textPanel.setFont(new Font(ConfigDao.instance().getConfig().getFont()
-				.getFontName(), Font.PLAIN, size));
+		textPanel.setFont((new Font("微软雅黑", Font.PLAIN, size)));
 	}
 
 	public void mouseClicked(MouseEvent e) {

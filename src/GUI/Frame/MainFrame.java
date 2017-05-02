@@ -7,6 +7,9 @@ import java.awt.Dimension;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
+
+import BaseUtil.GlobalData;
 
 public class MainFrame extends JFrame implements Runnable {
 	/**
@@ -22,16 +25,16 @@ public class MainFrame extends JFrame implements Runnable {
 	}
 
 	public MainFrame() {
-		setTitle("报告查重系统");
+		setTitle("报告查重系统-"+ GlobalData.getSingleton().m_DataBase.m_CurrentDataBase);
 		mainFrame = this;
-		setUndecorated(true);
+//		setUndecorated(true);
 		// setAlwaysOnTop(true);
-		setSize(new Dimension(1024, 768));
-		setMinimumSize(new Dimension(1024, 768));
+		setSize(new Dimension(1024, 700));
+		setMinimumSize(new Dimension(800, 600));
 
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+//		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		container.add(new OptionPanel(), BorderLayout.NORTH);
 		container.add(new MenuPanel(), BorderLayout.WEST);
 		container.add(new MainPanel(), BorderLayout.CENTER);
@@ -46,12 +49,11 @@ public class MainFrame extends JFrame implements Runnable {
 
 	public void open() {
 		setVisible(true);
-		LoginFrame.instance().setVisible(false);
-		LoginFrame.getLoginDialog().setVisible(false);
 	}
 
 	@Override
 	public void run() {
 		instance();
+		setVisible(true);
 	}
 }

@@ -1,43 +1,27 @@
-package listener;
+package GUI.Listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-
-import frame.MainPanel;
+import GUI.Frame.MainPanel;
 
 public class MenuListener implements ActionListener {
 
-	private JButton jbtRoomsBooked, jbtRoomsTaken, jbtExpiredRooms, jbtRooms,
-			jbtRoomTypes, jbtFoods;
+	private JButton jbtCheckList, jbtDBList;
 
-	public MenuListener(JButton jbtRoomsBooked, JButton jbtRoomsTaken,
-			JButton jbtExpiredRooms, JButton jbtRooms, JButton jbtRoomTypes,
-			JButton jbtFoods) {
-		this.jbtRoomsBooked = jbtRoomsBooked;
-		this.jbtRoomsTaken = jbtRoomsTaken;
-		this.jbtExpiredRooms = jbtExpiredRooms;
-		this.jbtRooms = jbtRooms;
-		this.jbtRoomTypes = jbtRoomTypes;
-		this.jbtFoods = jbtFoods;
+	public MenuListener(JButton jbtCheckList, JButton jbtDBList) {
+		this.jbtCheckList = jbtCheckList;
+		this.jbtDBList = jbtDBList;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == jbtRoomsBooked) {
-			MainPanel.instance().showRoomsBookedData();
-		} else if (e.getSource() == jbtRoomsTaken) {
-			MainPanel.instance().showRoomTakenData();
-		} else if (e.getSource() == jbtExpiredRooms) {
-			MainPanel.instance().showExpiredRoomsData();
-		} else if (e.getSource() == jbtRooms) {
-			MainPanel.instance().showAllRoomsData();
-		} else if (e.getSource() == jbtRoomTypes) {
-			MainPanel.instance().showRoomTypesData();
-		} else if (e.getSource() == jbtFoods) {
-			MainPanel.instance().showFoodsData();
-		}
+		if (e.getSource() == jbtCheckList) {
+			MainPanel.instance().showAllCheckList();
+		} else if (e.getSource() == jbtDBList) {
+			MainPanel.instance().showAllDataBaseData();
+		} 
 	}
 
 }
