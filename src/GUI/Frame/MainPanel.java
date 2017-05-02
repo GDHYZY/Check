@@ -65,11 +65,14 @@ public class MainPanel extends JPanel {
 		showData(GlobalData.getSingleton().getCheckList(), head);
 		JPopupMenu menu = new JPopupMenu();
 		JMenuItem checkout = new JMenuItem("    查看报告    ");
+		JMenuItem delete = new JMenuItem("    删除报告     ");
 		menu.add(checkout);
+		menu.add(delete);
 		TableListener tableListener = new TableListener(menu);
 		table.addMouseListener(tableListener);
 		table.addMouseMotionListener(tableListener);
 		checkout.addActionListener(tableListener);
+		delete.addActionListener(tableListener);
 	}
 
 	public void showAllDataBaseData() {

@@ -1,31 +1,16 @@
 package CompareModule;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
-
-import com.mysql.fabric.xmlrpc.base.Array;
-
 import BaseUtil.ExportData;
 import BaseUtil.GlobalData;
 import BaseUtil.ReportData;
 import BaseUtil.Sample;
 import BaseUtil.SimilarityParagraph;
-import DateBaseModule.DBUnit;
 import IOModule.IOUnit;
-import jxl.Workbook;
-import jxl.write.Label;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
+
 
 public class CompareUnit {
 	private double m_Level = 0.65;		//重复率设置
@@ -57,9 +42,7 @@ public class CompareUnit {
 			//2.1 将低于阈值的文本集 与 数据库集 进行对比，得到 低于阈值的文本集合ArrayList<ReportData> 与 高于阈值的文本集ArrayList<ReportData[]>
 		ReportData[] dbdatas = getDataFromDataBase();
 		CompareWithDatabase(datas.toArray(new ReportData[datas.size()]), dbdatas);
-	
-			//2.3 将 ReportData[] 插入到数据库
-//		SaveDatatoDataBase(m_Checkout.toArray(new ReportData[m_Checkout.size()]));
+
 		//3. 处理相似度高于阈值的报告对
 		ParagraphSimilarity();
 	}
@@ -74,22 +57,23 @@ public class CompareUnit {
 		
 		for (int i = 0; i < len1; i++) {
 			ArrayList<ReportData> tmp = m_Nopass.get(needcheck[i]);
-			for (int j = 0; j < len2; j++) {		
-				double result = getSimilarity(needcheck[i].toHashMap(needcheck[i].TextHash),
-						dbdatas[j].toHashMap(dbdatas[j].TextHash));
-				double picresult = getPicSimilarity(needcheck[i], dbdatas[j]);
-				if (picresult > m_PicLevel){ //说明有非常相似的图片
-					m_Picnopass.add(new ReportData[] {needcheck[i], dbdatas[j]});
-					continue;
+			for (int j = 0; j < len2; j++) {	
+				if (!GlobalData.getSingleton().m_noCheckPicture){
+					double picresult = getPicSimilarity(needcheck[i], dbdatas[j]);
+					if (picresult > m_PicLevel){ //说明有非常相似的图片
+						m_Picnopass.add(new ReportData[] {needcheck[i], dbdatas[j]});
+						continue;
+					}					
 				}
 				
+				double result = getSimilarity(needcheck[i].toHashMap(needcheck[i].TextHash),
+						dbdatas[j].toHashMap(dbdatas[j].TextHash));
 				if (result > m_Level){  //说明重复率超过标准	
 					if (tmp == null){
 						tmp = new ArrayList<ReportData>();
 					}
 					tmp.add(dbdatas[j]);
 					mp[i] = 1;
-					System.out.println(needcheck[i].Title+" 和  "+dbdatas[j].Title+ "的相似度为" + result);
 				}
 				//排除掉待测集中认为是无需查重的但与数据库集有重复的文档
 				if (mp[i]==1 && m_Checkout.contains(needcheck[i])){		
@@ -108,36 +92,11 @@ public class CompareUnit {
 		return ;
 	}
 	
-	private boolean SaveDatatoDataBase(ReportData[] reports){
-		DBUnit db;
-		try {
-			db = new DBUnit();
-			db.CreateandConnectDataBase("reportscheck");
-			db.CreateReporteTable();
-			for (ReportData rd : reports){
-				db.AddReportItems(rd);
-				db.CreateParagraphTable(rd);
-				db.AddParagraphItems(rd);
-			}
-			db.CloseDataBase();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return true;
-	}
-	
 	//从数据库获取样本
 	private ReportData[] getDataFromDataBase(){
-		DBUnit db;
 		ReportData[] rt = null;
 		try {
-			db = new DBUnit();
-			db.CreateandConnectDataBase("reportscheck");
-			db.CreateReporteTable();
-			
-			rt = db.QueryReports();
-			db.CloseDataBase();
+			rt = GlobalData.getSingleton().m_DataBase.QueryReports();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -277,7 +236,7 @@ public class CompareUnit {
 				ReportData tmp = samples.get(i);
 				Sample sample = new Sample();
 				sample.m_Sampledata = tmp;
-				if (PicContant(target, tmp)){
+				if (!GlobalData.getSingleton().m_noCheckPicture && PicContant(target, tmp)){
 					sample.m_PictureSimilarity = true;
 				}
 				ArrayList<SimilarityParagraph> simpara = getParagraphSimilarity(target, tmp);
@@ -328,7 +287,7 @@ public class CompareUnit {
 		while(pos1 < alen-1 && pos2 < blen-1){
 			int a1 = a.get(pos1), a2 = a.get(pos1+1);
 			int b1 = b.get(pos2), b2 = b.get(pos2+1);
-			if (a1> b2){
+			if (a1 > b2){
 				res.add(b1);
 				res.add(b2);
 				pos2 += 2;
@@ -345,13 +304,12 @@ public class CompareUnit {
 		while(pos1 < alen){res.add(a.get(pos1++));}
 		while(pos2 < blen){res.add(b.get(pos2++));}
 		
-		for (int i = 0; i+1 < res.size(); i++){
-			if (res.get(i) >= res.get(i+1)){
-				res.remove(i+1);
+		for (int i = 2; i < res.size(); ){
+			if (res.get(i) <= res.get(i-1)){
 				res.remove(i);
-				i = i - 1;
+				res.remove(i-1);
 			} else {
-				++i;
+				i+=2;
 			}
 		}
 		return res;
@@ -365,7 +323,7 @@ public class CompareUnit {
 		int samplelen = sample.ParagraphNum;
 		ArrayList<SimilarityParagraph> res = new ArrayList<SimilarityParagraph>();
 
-		for (int j = 0; j < targetlen; j++) {
+		for (int j = 1; j <= targetlen; j++) {
 			SimilarityParagraph simpar = new SimilarityParagraph();
 
 			Map<String, Integer> vc1 = target.toHashMap(target.ParagraphHash
@@ -373,7 +331,7 @@ public class CompareUnit {
 			Map<String, Integer> vc2 = null;
 			double result = 0.0;
 			int pos = 0;
-			for (int k = 0; k < samplelen; k++) {
+			for (int k = 1; k <= samplelen; k++) {
 				vc2 = sample.toHashMap(sample.ParagraphHash.get(k));
 				double tmp = getSimilarity(vc1, vc2);
 				if (tmp > result) {
@@ -401,7 +359,7 @@ public class CompareUnit {
 				int samenumber = 0;
 				while(true){
 					int[] LCSres = new int[3];
-					LCSres = LongestCommonSubsequence(text1.toCharArray(), text2.toCharArray());
+					LCSres = LongestCommonSubsequence(text1, text2);
 					if (LCSres[2] < 13)	//连续13个词做为标准  同知网
 					{
 						break;
@@ -444,14 +402,19 @@ public class CompareUnit {
 					continue;					
 				}
 				ReportData r2 = reports.get(j);
+				
+				//检测图片相似度
+				if (! GlobalData.getSingleton().m_noCheckPicture){
+					double picresult = getPicSimilarity(reports.get(i), reports.get(j));
+					if (picresult > m_PicLevel){ //说明有非常相似的图片
+						m_Picnopass.add(new ReportData[] {r1, r2});
+						m_Picnopass.add(new ReportData[] {r2, r1});
+						continue;
+					}
+				}
+				
 				double result = getSimilarity(r1.toHashMap(r1.TextHash),
 						r2.toHashMap(r2.TextHash));
-				double picresult = getPicSimilarity(reports.get(i), reports.get(j));
-				if (picresult > m_PicLevel){ //说明有非常相似的图片
-					m_Picnopass.add(new ReportData[] {r1, r2});
-					m_Picnopass.add(new ReportData[] {r2, r1});
-					continue;
-				}
 				
 				if (result > m_Level){  //说明重复率超过标准
 					sample.add(r2);
@@ -471,19 +434,16 @@ public class CompareUnit {
 	}
 	
 	//求两个文本的最长公共字串 返回值 int[] {第一段的开始， 第二段的开始， 公共长度} 复杂度O(n)
-	private int[] LongestCommonSubsequence(char[] str1, char[] str2){
-		int size1 = str1.length;
-        int size2 = str2.length;
+	private int[] LongestCommonSubsequence(String str1, String str2){
+		int size1 = str1.length();
+        int size2 = str2.length();
         int[] res = new int[3];
         if (size1 == 0 || size2 == 0) 
         	return res;
- 
         int start1 = -1;
         int start2 = -1;
         int longest = 0;
- 
-        int comparisons = 0;
- 
+        
         for (int i = 0; i < size1; ++i)
         {
             int m = i;
@@ -491,8 +451,7 @@ public class CompareUnit {
             int length = 0;
             while (m < size1 && n < size2)
             {
-                ++comparisons;
-                if (str1[m] != str2[n])
+                if (str1.charAt(m) != str2.charAt(n))
                 {
                     length = 0;
                 }
@@ -510,7 +469,7 @@ public class CompareUnit {
                 ++n;
             }
         }
- 
+        
         for (int j = 1; j < size2; ++j)
         {
             int m = 0;
@@ -518,8 +477,7 @@ public class CompareUnit {
             int length = 0;
             while (m < size1 && n < size2)
             {
-                ++comparisons;
-                if (str1[m] != str2[n])
+                if (str1.charAt(m) != str2.charAt(n))
                 {
                     length = 0;
                 }
@@ -542,5 +500,73 @@ public class CompareUnit {
         res[2] = longest;
         return res;
 	}
+	
+//	private int[] LongestCommonSubsequence(char[] str1, char[] str2){
+//		int size1 = str1.length;
+//        int size2 = str2.length;
+//        int[] res = new int[3];
+//        if (size1 == 0 || size2 == 0) 
+//        	return res;
+// 
+//        int start1 = -1;
+//        int start2 = -1;
+//        int longest = 0;
+//        
+//        for (int i = 0; i < size1; ++i)
+//        {
+//            int m = i;
+//            int n = 0;
+//            int length = 0;
+//            while (m < size1 && n < size2)
+//            {
+//                if (str1[m] != str2[n])
+//                {
+//                    length = 0;
+//                }
+//                else
+//                {
+//                    ++length;
+//                    if (longest < length)
+//                    {
+//                        longest = length;
+//                        start1 = m - longest + 1;
+//                        start2 = n - longest + 1;
+//                    }
+//                }
+//                ++m;
+//                ++n;
+//            }
+//        }
+// 
+//        for (int j = 1; j < size2; ++j)
+//        {
+//            int m = 0;
+//            int n = j;
+//            int length = 0;
+//            while (m < size1 && n < size2)
+//            {
+//                if (str1[m] != str2[n])
+//                {
+//                    length = 0;
+//                }
+//                else
+//                {
+//                    ++length;
+//                    if (longest < length)
+//                    {
+//                        longest = length;
+//                        start1 = m - longest + 1;
+//                        start2 = n - longest + 1;
+//                    }
+//                }
+//                ++m;
+//                ++n;
+//            }
+//        }
+//        res[0] = start1;
+//        res[1] = start2;
+//        res[2] = longest;
+//        return res;
+//	}
 	
 }

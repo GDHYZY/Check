@@ -29,11 +29,6 @@ public class LoginDialogListener extends MouseAdapter implements ActionListener 
 		this.cancel = cancel;
 	}
 
-	public boolean isDigit(String strNum) {  
-		Pattern pattern = Pattern.compile("[0-9]{1,}");  
-	    Matcher matcher = pattern.matcher((CharSequence) strNum);  
-	    return matcher.matches();   
-	} 
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -42,10 +37,6 @@ public class LoginDialogListener extends MouseAdapter implements ActionListener 
 		} else if (e.getSource() == create) {
 			String value = JOptionPane.showInputDialog( "输入数据库名称" );
 			if (value != null){
-				if (isDigit(value)){
-					JOptionPane.showMessageDialog(null, "数据库名称不规范");
-					return;
-				}
 				GlobalData.getSingleton().m_DataBase.CreateOneDataBase(value);
 				LoginDialog.instance().open();
 			}

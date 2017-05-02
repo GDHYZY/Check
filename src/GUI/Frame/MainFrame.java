@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
 
 import BaseUtil.GlobalData;
 
@@ -38,6 +37,7 @@ public class MainFrame extends JFrame implements Runnable {
 		container.add(new OptionPanel(), BorderLayout.NORTH);
 		container.add(new MenuPanel(), BorderLayout.WEST);
 		container.add(new MainPanel(), BorderLayout.CENTER);
+		container.add(new LogPanel(), BorderLayout.EAST);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setIconImage(new ImageIcon(this.getClass().getResource(
 				"/images/icon.png")).getImage());

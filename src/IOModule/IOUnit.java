@@ -93,8 +93,6 @@ public class IOUnit {
 
 				reports[i] = new ReportData();
 				reports[i].Title = name[i];
-//				reports[i].StuNum = value[0];
-//				reports[i].StuName = value[1];
 				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
 				reports[i].Date = df.format(new Date());
 				
@@ -178,11 +176,11 @@ public class IOUnit {
 //					pos = export.m_Sample.get(j).m_Sampledata.ParagraphMsg.get(parlist.get(k).m_SampleParagraph);
 //					String tmp2 = text2.substring(pos[0],pos[1]).trim();
 					
-//					System.out.print("          {");
-//					for (String s: parlist.get(k).m_SimilarityText){
-//						System.out.print(s+",");
-//					}
-//					System.out.println("}");
+					System.out.print("          {");
+					for (String s: parlist.get(k).m_SimilarityText){
+						System.out.print(s+",");
+					}
+					System.out.println("}");
 					
 //					for (String s: parlist.get(k).m_SimilarityText){
 //						tmp1 = tmp1.replace(s, "`");

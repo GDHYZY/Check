@@ -10,6 +10,7 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import BaseUtil.GlobalData;
 import GUI.Frame.SaveDataDialog;
 
 
@@ -26,7 +27,9 @@ public class SaveDataListener implements ActionListener {
 		if (e.getSource() == cancel) {
 			SaveDataDialog.instance().dispose();
 		} else {
-			
+			GlobalData.getSingleton().saveIntoDataBase();
+			SaveDataDialog.instance().dispose();
+			JOptionPane.showMessageDialog(null, "保存完毕");
 		}
 	}
 }

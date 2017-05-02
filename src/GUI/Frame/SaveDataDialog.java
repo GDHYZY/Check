@@ -1,12 +1,8 @@
 package GUI.Frame;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-
 import GUI.Listener.SaveDataListener;
 
 public class SaveDataDialog extends JDialog {

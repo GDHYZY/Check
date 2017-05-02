@@ -37,7 +37,6 @@ public class InportFilesDialog extends JDialog {
 
 	public void open() {
 		JFrame f = new JFrame();
-		IOUnit io = new IOUnit();
 		JFileChooser jfc = new JFileChooser();
 		jfc.setMultiSelectionEnabled(true);
 		if (jfc.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) 
@@ -50,7 +49,7 @@ public class InportFilesDialog extends JDialog {
 			}
 			String path=jfc.getSelectedFile().getParent();
 			System.out.println(path);
-			io.readWord(path,name);
+			new IOUnit().readWord(path,name);
 			JOptionPane.showMessageDialog(null, "文件已读入！");		
 		}
 		MainPanel.instance().refresh();

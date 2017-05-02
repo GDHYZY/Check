@@ -10,8 +10,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
 
+import BaseUtil.ExportData;
 import BaseUtil.GlobalData;
+import BaseUtil.ReportData;
 import GUI.Frame.BackgroundPanel;
 import GUI.Frame.DataBaseConfigDialog;
 import GUI.Frame.DataTable;
@@ -64,11 +67,29 @@ public class TableListener extends MouseAdapter implements ActionListener {
 		
 		if (strAction.equals("查看报告")){
 			
+		} else if (strAction.equals("删除报告")){
+			for (int row : table.getSelectedRows()) {
+				ReportData rd = null;
+				String title = getValue(row, 0);
+				for (ReportData r : GlobalData.getSingleton().m_InputData){
+					if (r.Title.equals(title)){
+						rd = r;
+						GlobalData.getSingleton().m_InputData.remove(rd);
+						break;
+					}
+				}
+				for (ExportData exd : GlobalData.getSingleton().m_ExportData){
+					if (exd.m_Target == rd){
+						GlobalData.getSingleton().m_ExportData.remove(e);
+					}
+				}
+			}
+			removeSelectedRows();
 		} else if (strAction.equals("删除项目")){
 			for (int row : table.getSelectedRows()) {
-//				GlobalData.getSingleton().m_DataBase.DeleteOneDataBase(getSelectedValue(row));
+				GlobalData.getSingleton().m_DataBase.DeleteReportItem(getValue(row, 0));
 			}
-			removeSelectedRow();
+			removeSelectedRows();
 		} else if (strAction.equals("连接数据库")){
 			String name = getSelectedValue(0);
 			GlobalData.getSingleton().m_DataBase.CreateandConnectDataBase(name);
@@ -79,7 +100,7 @@ public class TableListener extends MouseAdapter implements ActionListener {
 			for (int row : table.getSelectedRows()) {
 				GlobalData.getSingleton().m_DataBase.DeleteOneDataBase(getValue(row, 0));
 			}
-			removeSelectedRow();
+			removeSelectedRows();
 		} else if (strAction.equals("清空数据库")){
 			GlobalData.getSingleton().m_DataBase.InitDataBases();
 			GlobalData.getSingleton().m_DataBase.ClearDataBase();
@@ -105,6 +126,26 @@ public class TableListener extends MouseAdapter implements ActionListener {
 		return tableModel.getValueAt(table.getSelectedRow(), column).toString();
 	}
 
+	private void removeSelectedRows() {
+		if (table.getSelectedRow() < 0)
+			return;
+		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+		boolean isEndSelect = false;
+		if (table.getSelectedRows()[table.getSelectedRows().length - 1] == tableModel
+				.getRowCount() - 1) {
+			isEndSelect = true;
+		}
+		while (table.getSelectedRow() >= 0) {
+			tableModel.removeRow(table.getSelectedRow());
+		}
+		if (isEndSelect && tableModel.getRowCount() > 0) {
+			tableModel.removeRow(tableModel.getRowCount() - 1);
+		}
+		if (tableModel.getRowCount() <= 0) {
+			MainPanel.instance().refresh();
+		}
+	}
+	
 	private void removeSelectedRow() {
 		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 		tableModel.removeRow(table.getSelectedRow());

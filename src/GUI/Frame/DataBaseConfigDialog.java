@@ -43,19 +43,7 @@ public class DataBaseConfigDialog extends JDialog {
 		jscrolPane.getViewport().setOpaque(false);
 		add(jscrolPane);
 		jscrolPane.setBounds(10, 10, 200, 350);
-		
-		JButton create = new JButton("创建数据库");
-		JButton cancel = new JButton("取消");
-		create.setBounds(230, 100, 100, 30);
-		cancel.setBounds(230, 200, 100, 30);
-		add(create);
-		add(cancel);
-		
-		DataBaseConfigListener databaseconfigListener = new DataBaseConfigListener(
-				GlobalData.getSingleton().m_DataBase.m_CurrentDataBase, create, cancel);
-		create.addActionListener(databaseconfigListener);
-		cancel.addActionListener(databaseconfigListener);
-		
+
 		showAllDB();
 		
 	}
@@ -83,6 +71,17 @@ public class DataBaseConfigDialog extends JDialog {
 		link.addActionListener(tableListener);
 		delete.addActionListener(tableListener);
 		clear.addActionListener(tableListener);
+		
+		JButton create = new JButton("创建数据库");
+		JButton cancel = new JButton("取消");
+		create.setBounds(230, 100, 100, 30);
+		cancel.setBounds(230, 200, 100, 30);
+		add(create);
+		add(cancel);
+		DataBaseConfigListener databaseconfigListener = new DataBaseConfigListener(
+				GlobalData.getSingleton().m_DataBase.m_CurrentDataBase, create, cancel);
+		create.addActionListener(databaseconfigListener);
+		cancel.addActionListener(databaseconfigListener);
 	}
 	
 	public void open() {
