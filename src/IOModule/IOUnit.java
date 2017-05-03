@@ -136,7 +136,7 @@ public class IOUnit {
 			for(int j = 0; j < name.length * 2; j++){
 				thread[j] = null;
 			}		
-			
+			GlobalData.getSingleton().m_ExportData.clear();
 			GlobalData.getSingleton().m_InputData.addAll(new ArrayList<ReportData>(Arrays.asList(reports)));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

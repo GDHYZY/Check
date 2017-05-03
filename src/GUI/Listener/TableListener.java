@@ -83,7 +83,7 @@ public class TableListener extends MouseAdapter implements ActionListener {
 				if (ep.m_Target.Title == name){
 					JFrame f = new JFrame();
 					JFileChooser jfc = new JFileChooser();
-					if (jfc.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) 
+					if (jfc.showSaveDialog(f) == JFileChooser.APPROVE_OPTION) 
 					{
 						File file =jfc.getSelectedFile();
 						String Name = file.getName();

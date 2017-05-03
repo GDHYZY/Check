@@ -53,12 +53,11 @@ public class OptionListener implements ActionListener{
 			if (GlobalData.getSingleton().m_ExportData==null || GlobalData.getSingleton().m_ExportData.isEmpty()){
 				JOptionPane.showMessageDialog(null, "未进行检测");
 				return;
-			}
-			
+			}	
 			JFrame f = new JFrame();
 			JFileChooser jfc = new JFileChooser();
 			jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			if (jfc.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) 
+			if (jfc.showSaveDialog(f) == JFileChooser.APPROVE_OPTION) 
 			{
 				File file =jfc.getSelectedFile();
 				String path = file.getPath();

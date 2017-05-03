@@ -53,17 +53,24 @@ public class GlobalData {
 	
 	public Object[][] getCheckList(){
 		Object[][] object = new Object[m_InputData.size()][5];
-		for (int i = 0; i < m_InputData.size(); ++i){
-			object[i][0] = m_InputData.get(i).Title;
-			object[i][1] = m_InputData.get(i).ParagraphNum;
-			object[i][2] = m_InputData.get(i).WordNum;
-			if (m_ExportData == null || m_ExportData.isEmpty()){
+		if (m_ExportData == null || m_ExportData.isEmpty()){
+			for (int i = 0; i < m_InputData.size(); ++i){
+				object[i][0] = m_InputData.get(i).Title;
+				object[i][1] = m_InputData.get(i).ParagraphNum;
+				object[i][2] = m_InputData.get(i).WordNum;
 				object[i][3] = "";
-			} else {
+				object[i][4] = m_InputData.get(i).Date;
+			}		
+		} else {
+			for (int i = 0; i < m_ExportData.size(); ++i){
+				object[i][0] = m_ExportData.get(i).m_Target.Title;
+				object[i][1] = m_ExportData.get(i).m_Target.ParagraphNum;
+				object[i][2] = m_ExportData.get(i).m_Target.WordNum;
 				object[i][3] = ""+ String.format("%.2f", m_ExportData.get(i).m_Similarity*100) + "%";				
+				object[i][4] = m_ExportData.get(i).m_Target.Date;
 			}
-			object[i][4] = m_InputData.get(i).Date;
 		}
+		
 		return object;
 	}
 	

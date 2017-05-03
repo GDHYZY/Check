@@ -255,6 +255,9 @@ public class CompareUnit {
 					ArrayList<Integer> poslist = sim.m_SimilarityposList;
 					stringposlist = getSameWordPosArray(stringposlist, poslist);
 				}
+				System.out.print(target.Title+ "与" +sample.m_Sampledata.Title+"的poslist:");
+				System.out.println(stringposlist);
+				
 				sample.m_WordNumber = textwords;
 				sample.m_Similarity = (double)textwords / target.WordNum;
 				sample.m_SimilarityPosList = stringposlist;
@@ -283,8 +286,10 @@ public class CompareUnit {
 		if (a == null || a.isEmpty()){
 			return new ArrayList<Integer>(b);
 		} else if (b == null || b.isEmpty()){
-			return a;
+			return new ArrayList<Integer>(a);
 		}
+		System.out.println(a);
+		System.out.println(b);
 		ArrayList<Integer> res = new ArrayList<Integer>();
 		int alen = a.size();
 		int blen = b.size();
@@ -363,10 +368,10 @@ public class CompareUnit {
 				ArrayList<String> stringlist = new ArrayList<String>();
 				ArrayList<Integer> stringposlist = new ArrayList<Integer>();
 				int samenumber = 0;
+				Map<String,Integer> sametextpos = new HashMap<String, Integer>();
 				while(true){
-					int[] LCSres = new int[3];
-					LCSres = LongestCommonSubsequence(text1, text2);
-					if (LCSres[2] < 13)	//连续13个词做为标准  同知网
+					int[] LCSres = LongestCommonSubsequence(text1, text2);
+					if (LCSres[2] < 13)	//连续13个词做为标准  同知网(当文本词少于13的时候，以文本词长度为阈值)
 					{
 						break;
 					}
@@ -374,9 +379,15 @@ public class CompareUnit {
 					text1 = text1.substring(0,LCSres[0]) + text1.substring(LCSres[0]+LCSres[2]);
 					text2 = text2.substring(0,LCSres[1]) + text2.substring(LCSres[1]+LCSres[2]);
 					samenumber += LCSres[2];
-					stringlist.add(s);
 					int begin = tmp.indexOf(s);
 					int end = begin + LCSres[2];
+					if (stringlist.contains(s)){
+						int step = sametextpos.get(s);
+						begin = tmp.indexOf(s, step+1);
+						end = begin + LCSres[2];
+					} 
+					sametextpos.put(s, begin);
+					stringlist.add(s);
 					stringposlist.add(target.ParagraphMsg.get(j)[0]+ begin);
 					stringposlist.add(target.ParagraphMsg.get(j)[0]+ end);
 				}

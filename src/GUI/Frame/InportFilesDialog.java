@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -36,6 +37,7 @@ public class InportFilesDialog extends JDialog {
 	}
 
 	public void open() {
+		
 		JFrame f = new JFrame();
 		JFileChooser jfc = new JFileChooser();
 		jfc.setMultiSelectionEnabled(true);
