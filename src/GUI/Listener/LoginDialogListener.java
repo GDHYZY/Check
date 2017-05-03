@@ -44,7 +44,7 @@ public class LoginDialogListener extends MouseAdapter implements ActionListener 
 			//连入数据库
 			String name = jcblist.getSelectedItem().toString();
 			GlobalData.getSingleton().m_DataBase.CreateandConnectDataBase(name);
-			LoginDialog.instance().setVisible(false);
+			LoginDialog.instance().dispose();
 			MainFrame.instance().open();
 		}
 	}

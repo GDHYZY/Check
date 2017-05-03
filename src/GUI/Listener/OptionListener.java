@@ -2,11 +2,16 @@ package GUI.Listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import jxl.write.WriteException;
+import BaseUtil.GlobalData;
 import GUI.Frame.CheckDialog;
 import GUI.Frame.DataBaseConfigDialog;
 import GUI.Frame.InportFilesDialog;
@@ -45,17 +50,31 @@ public class OptionListener implements ActionListener{
 		}else if(e.getSource() == jbtDataBaseConfig){
 			DataBaseConfigDialog.instance().open();
 		}else if(e.getSource() == jbtExportReport){
-			try {
-				new IOUnit().Save();
-			} catch (WriteException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			if (GlobalData.getSingleton().m_ExportData==null || GlobalData.getSingleton().m_ExportData.isEmpty()){
+				JOptionPane.showMessageDialog(null, "未进行检测");
+				return;
 			}
-//			LoginFrame.instance().open();
-//			MainFrame.instance().dispose();
+			
+			JFrame f = new JFrame();
+			JFileChooser jfc = new JFileChooser();
+			jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			if (jfc.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) 
+			{
+				File file =jfc.getSelectedFile();
+				String path = file.getPath();
+				try {
+					new IOUnit().Export(path);
+				} catch (WriteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				JOptionPane.showMessageDialog(null, "导出检测结果成功");
+			} else{
+				return;
+			}
 		}else if(e.getSource() == jbtExit){
 			System.exit(0);
 		}

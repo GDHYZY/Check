@@ -4,14 +4,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
 
+import jxl.write.WriteException;
 import BaseUtil.ExportData;
 import BaseUtil.GlobalData;
 import BaseUtil.ReportData;
@@ -20,6 +26,7 @@ import GUI.Frame.DataBaseConfigDialog;
 import GUI.Frame.DataTable;
 import GUI.Frame.MainFrame;
 import GUI.Frame.MainPanel;
+import IOModule.IOUnit;
 
 
 public class TableListener extends MouseAdapter implements ActionListener {
@@ -65,8 +72,30 @@ public class TableListener extends MouseAdapter implements ActionListener {
 				+ " </font></b>操作吗？"))
 			return;
 		
-		if (strAction.equals("查看报告")){
-			
+		if (strAction.equals("导出检测结果")){
+			String name = getSelectedValue(0);
+			ArrayList<ExportData> eplist = GlobalData.getSingleton().m_ExportData;
+			if (eplist == null || eplist.isEmpty()){
+				JOptionPane.showMessageDialog(null, "未进行检测");
+				return;
+			}
+			for (ExportData ep : eplist){
+				if (ep.m_Target.Title == name){
+					JFrame f = new JFrame();
+					JFileChooser jfc = new JFileChooser();
+					if (jfc.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) 
+					{
+						File file =jfc.getSelectedFile();
+						String Name = file.getName();
+						String path=jfc.getSelectedFile().getParent();
+						path += "\\"+Name;
+						new IOUnit().Export(ep, path);
+					} else{
+						return;
+					}
+					break;
+				}
+			}
 		} else if (strAction.equals("删除报告")){
 			for (int row : table.getSelectedRows()) {
 				ReportData rd = null;

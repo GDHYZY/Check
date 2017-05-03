@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
@@ -16,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import BaseUtil.GlobalData;
+import BaseUtil.LogUnit;
 import GUI.Listener.TableListener;
 
 public class LogPanel extends JPanel {
@@ -25,11 +27,16 @@ public class LogPanel extends JPanel {
 	private static final long serialVersionUID = 4090036947233273308L;
 	private static LogPanel logpanel;
 	private JTextArea textarea;
+	private JScrollPane jscrolPane;
 
 	public static LogPanel instance() {
 		if (logpanel == null)
 			logpanel = new LogPanel();
 		return logpanel;
+	}
+	
+	public JTextArea getTextArea(){
+		return textarea;
 	}
 
 	public LogPanel() {
@@ -42,9 +49,40 @@ public class LogPanel extends JPanel {
 		textarea = new JTextArea();
 		textarea.setEditable(false);
 		textarea.setSelectedTextColor(Color.RED);
+//		textarea.setLineWrap(true);
+//		textarea.setWrapStyleWord(true);
+
+		jscrolPane = new JScrollPane();
+		jscrolPane.setBorder(null);
+		jscrolPane.setOpaque(false);
+		jscrolPane.getViewport().setOpaque(false);
+		jscrolPane.setViewportView(textarea);
+		add(jscrolPane,BorderLayout.CENTER);
 		
-		add(textarea,BorderLayout.CENTER);
+		
 		setVisible(true);
+		
+		
+		final long timeInterval = 2000;  
+		
+		Runnable runnable = new Runnable(){
+			public void run(){
+				while(true){
+					ArrayList<String> logs = LogUnit.getSingleton().readLog();
+					for (String s : logs){
+						LogPanel.instance().getTextArea().append(s);
+						LogPanel.instance().getTextArea().append("\r\n");
+					}
+					try {
+						Thread.sleep(timeInterval);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		new Thread(runnable).start();
 	}
 
 	
@@ -53,13 +91,9 @@ public class LogPanel extends JPanel {
 		ImageIcon icon = new ImageIcon(this.getClass().getResource(
 				"/images/scrollpane.png"));
 		Image img = icon.getImage();
-		g.drawImage(img, textarea.getX(), textarea.getY(),
-				textarea.getWidth(), textarea.getHeight(), this);
+		g.drawImage(img, jscrolPane.getX(), jscrolPane.getY(),
+				jscrolPane.getWidth(), jscrolPane.getHeight(), this);
 		super.paint(g);
-	}
-
-	public void refresh() {
-		
 	}
 
 }

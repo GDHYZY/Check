@@ -20,10 +20,10 @@ public class Main {
 			if (value instanceof javax.swing.plaf.FontUIResource)
 				UIManager.put(key, font);
 		}
+		Thread td = new Thread(new LoginDialog());
 		try {
-			Thread td = new Thread(new LoginDialog());
 			td.start();
-			td.wait();				
+			td.wait();
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -34,6 +34,7 @@ public class Main {
 					.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (Exception e) {
 		}
+		
 		new Thread(new MainFrame()).start();
 	}
 }

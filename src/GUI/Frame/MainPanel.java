@@ -64,14 +64,14 @@ public class MainPanel extends JPanel {
 		Object[] head = { "标题","段落数", "字数", "相似度", "日期" };
 		showData(GlobalData.getSingleton().getCheckList(), head);
 		JPopupMenu menu = new JPopupMenu();
-		JMenuItem checkout = new JMenuItem("    查看报告    ");
+		JMenuItem export = new JMenuItem("    导出检测结果    ");
 		JMenuItem delete = new JMenuItem("    删除报告     ");
-		menu.add(checkout);
+		menu.add(export);
 		menu.add(delete);
 		TableListener tableListener = new TableListener(menu);
 		table.addMouseListener(tableListener);
 		table.addMouseMotionListener(tableListener);
-		checkout.addActionListener(tableListener);
+		export.addActionListener(tableListener);
 		delete.addActionListener(tableListener);
 	}
 

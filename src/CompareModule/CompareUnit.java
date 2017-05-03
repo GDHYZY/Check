@@ -4,8 +4,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import BaseUtil.ExportData;
 import BaseUtil.GlobalData;
+import BaseUtil.LogUnit;
 import BaseUtil.ReportData;
 import BaseUtil.Sample;
 import BaseUtil.SimilarityParagraph;
@@ -28,6 +30,7 @@ public class CompareUnit {
 	
 	@SuppressWarnings("null")
 	public void Compare(){
+		LogUnit.getSingleton().writeLog("开始检查相似度");
 		//1. 对比上传文件集
 			//1.1 对比图片 和 文本， 得到 低于阈值的文本集ArrayList<ReportData>  与   高于阈值的文本集ArrayList<ReportData[]>
 		ArrayList<ReportData> datas = GlobalData.getSingleton().m_InputData;
@@ -222,6 +225,7 @@ public class CompareUnit {
 		if (m_Nopass == null || m_Nopass.isEmpty())
 			return;
 		Iterator<Map.Entry<ReportData, ArrayList<ReportData>>> it = m_Nopass.entrySet().iterator();
+		GlobalData.getSingleton().m_ExportData.clear();
 		while(it.hasNext()){
 			Map.Entry<ReportData, ArrayList<ReportData>> entry = it.next();
 			ReportData target = entry.getKey();
@@ -271,12 +275,13 @@ public class CompareUnit {
 				export.m_Similarity = (double)wordnumber / target.WordNum;
 			}
 			GlobalData.getSingleton().m_ExportData.add(export);
+			LogUnit.getSingleton().writeLog(target.Title+"对比完毕");
 		}
 	}
 	
 	private ArrayList<Integer> getSameWordPosArray(ArrayList<Integer> a, ArrayList<Integer> b){
 		if (a == null || a.isEmpty()){
-			return b;
+			return new ArrayList<Integer>(b);
 		} else if (b == null || b.isEmpty()){
 			return a;
 		}
@@ -353,6 +358,7 @@ public class CompareUnit {
 						sample.ParagraphMsg.get(pos)[0],
 						sample.ParagraphMsg.get(pos)[1]).trim();
 				int len1 = text1.length();
+				String tmp = new String(text1);
 				// 需要获取段落相似词和位置图和总字数
 				ArrayList<String> stringlist = new ArrayList<String>();
 				ArrayList<Integer> stringposlist = new ArrayList<Integer>();
@@ -369,8 +375,10 @@ public class CompareUnit {
 					text2 = text2.substring(0,LCSres[1]) + text2.substring(LCSres[1]+LCSres[2]);
 					samenumber += LCSres[2];
 					stringlist.add(s);
-					stringposlist.add(target.ParagraphMsg.get(j)[0]+LCSres[0]);
-					stringposlist.add(target.ParagraphMsg.get(j)[0]+LCSres[0]+LCSres[2]);
+					int begin = tmp.indexOf(s);
+					int end = begin + LCSres[2];
+					stringposlist.add(target.ParagraphMsg.get(j)[0]+ begin);
+					stringposlist.add(target.ParagraphMsg.get(j)[0]+ end);
 				}
 				Collections.sort(stringposlist);
 				if (!stringlist.isEmpty()) {

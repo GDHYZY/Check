@@ -4,10 +4,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import BaseUtil.GlobalData;
+import BaseUtil.LogUnit;
 import BaseUtil.ReportData;
 
 
@@ -76,6 +80,7 @@ public class DBUnit {
 				sentence = "Insert into " + m_DataBase + " value('" + name
 						+ "');";
 				m_statement.executeUpdate(sentence);
+				LogUnit.getSingleton().writeLog("创建数据库"+name);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -107,6 +112,8 @@ public class DBUnit {
 			m_statement.executeUpdate(sentence);
 			sentence =  "drop database if exists `" + name + "`;";
 			m_statement.executeUpdate(sentence);
+			
+			LogUnit.getSingleton().writeLog("删除数据库"+name);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -176,6 +183,8 @@ public class DBUnit {
 			m_connection = DriverManager.getConnection(url,"root","");
 			m_statement = m_connection.createStatement();
 			m_CurrentDataBase = name;
+			
+			LogUnit.getSingleton().writeLog("连接到数据库"+name);
 			
 			CreateReporteTable();
 			

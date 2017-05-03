@@ -1,6 +1,8 @@
 package BaseUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import DateBaseModule.DBUnit;
 
@@ -26,6 +28,7 @@ public class GlobalData {
     public DBUnit m_DataBase = null;
     public ArrayList<ReportData> m_InputData = null;
     public ArrayList<ExportData> m_ExportData = null;
+//    private ArrayList<String> m_Log = null;
     public boolean m_noCheckPicture = true;
     
     private void InitDataBase(){
@@ -40,6 +43,8 @@ public class GlobalData {
     }
 	
 	public void reInitData(){
+//		m_Log = null;
+//		m_Log = new ArrayList<String>();
 		m_InputData = null;
 		m_InputData = new ArrayList<ReportData>();
 		m_ExportData = null;
@@ -105,4 +110,5 @@ public class GlobalData {
 			}
 		}
 	}
+
 }
