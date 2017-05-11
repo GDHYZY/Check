@@ -17,13 +17,11 @@ import IOModule.IOUnit;
 public class CompareUnit {
 	private double m_Level = 0.65;		//重复率设置
 	private double m_PicLevel = 0.95;	//图片重复率
-	private ArrayList<ReportData> m_Checkout = null;		//查重通过的报告
 	private Map<ReportData, ArrayList<ReportData>> m_Nopass = null;
 	private ArrayList<ReportData[]> m_Picnopass = null;	//图片有非常相似的两个报告
 	
 	public CompareUnit() {
 		// TODO Auto-generated constructor stub
-		m_Checkout = new ArrayList<ReportData>();
 		m_Nopass = new HashMap<ReportData, ArrayList<ReportData>>();
 		m_Picnopass =  new ArrayList<ReportData[]>();
 	}
@@ -31,8 +29,6 @@ public class CompareUnit {
 	@SuppressWarnings("null")
 	public void Compare(){
 		LogUnit.getSingleton().writeLog("开始检查相似度");
-		//1. 对比上传文件集
-			//1.1 对比图片 和 文本， 得到 低于阈值的文本集ArrayList<ReportData>  与   高于阈值的文本集ArrayList<ReportData[]>
 		ArrayList<ReportData> datas = GlobalData.getSingleton().m_InputData;
 		if (datas == null || datas.isEmpty()){
 			return;
@@ -41,12 +37,9 @@ public class CompareUnit {
 		Map<ReportData, ArrayList<ReportData>> needcheck = ReportsSimilarity(datas);
 		if (needcheck != null || !needcheck.isEmpty())
 			m_Nopass.putAll(needcheck);
-		//2. 对比数据库集
-			//2.1 将低于阈值的文本集 与 数据库集 进行对比，得到 低于阈值的文本集合ArrayList<ReportData> 与 高于阈值的文本集ArrayList<ReportData[]>
 		ReportData[] dbdatas = getDataFromDataBase();
 		CompareWithDatabase(datas.toArray(new ReportData[datas.size()]), dbdatas);
 
-		//3. 处理相似度高于阈值的报告对
 		ParagraphSimilarity();
 	}
 	
@@ -56,7 +49,6 @@ public class CompareUnit {
 			return ;
 		int len1 = needcheck.length;
 		int len2 = dbdatas.length;
-		int[] mp = new int[len1];
 		
 		for (int i = 0; i < len1; i++) {
 			ArrayList<ReportData> tmp = m_Nopass.get(needcheck[i]);
@@ -76,20 +68,10 @@ public class CompareUnit {
 						tmp = new ArrayList<ReportData>();
 					}
 					tmp.add(dbdatas[j]);
-					mp[i] = 1;
-				}
-				//排除掉待测集中认为是无需查重的但与数据库集有重复的文档
-				if (mp[i]==1 && m_Checkout.contains(needcheck[i])){		
-					m_Checkout.remove(needcheck[i]);
 				}
 			}
 			if (tmp != null){
 				m_Nopass.put(needcheck[i], tmp);
-			}
-		}
-		for (int j = 0; j < len1 ;++j){
-			if(mp[j] == 0 && !m_Checkout.contains(needcheck[j])){
-				m_Checkout.add(needcheck[j]);
 			}
 		}
 		return ;
@@ -190,7 +172,7 @@ public class CompareUnit {
 					AlgorithmMap.put(key, values);
 				}
 			}
-
+			//向量余弦计算相似度
 			Iterator<String> iterator = AlgorithmMap.keySet().iterator();
 			double sqdoc1 = 0;
 			double sqdoc2 = 0;
@@ -255,8 +237,6 @@ public class CompareUnit {
 					ArrayList<Integer> poslist = sim.m_SimilarityposList;
 					stringposlist = getSameWordPosArray(stringposlist, poslist);
 				}
-				System.out.print(target.Title+ "与" +sample.m_Sampledata.Title+"的poslist:");
-				System.out.println(stringposlist);
 				
 				sample.m_WordNumber = textwords;
 				sample.m_Similarity = (double)textwords / target.WordNum;
@@ -288,8 +268,6 @@ public class CompareUnit {
 		} else if (b == null || b.isEmpty()){
 			return new ArrayList<Integer>(a);
 		}
-		System.out.println(a);
-		System.out.println(b);
 		ArrayList<Integer> res = new ArrayList<Integer>();
 		int alen = a.size();
 		int blen = b.size();
@@ -371,7 +349,7 @@ public class CompareUnit {
 				Map<String,Integer> sametextpos = new HashMap<String, Integer>();
 				while(true){
 					int[] LCSres = LongestCommonSubsequence(text1, text2);
-					if (LCSres[2] < 13)	//连续13个词做为标准  同知网(当文本词少于13的时候，以文本词长度为阈值)
+					if (LCSres[2] < 8)	//连续7个词做为标准  
 					{
 						break;
 					}
@@ -443,11 +421,11 @@ public class CompareUnit {
 			}
 			res.put(r1, sample);
 		}
-		for (int j = 0;j < len;j++){
-			if(mp[j] == 0){
-				m_Checkout.add(reports.get(j));
-			}
-		}
+//		for (int j = 0;j < len;j++){
+//			if(mp[j] == 0){
+//				m_Checkout.add(reports.get(j));
+//			}
+//		}
 		
 		return res.isEmpty()? null : res;
 	}

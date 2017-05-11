@@ -1,28 +1,14 @@
 package GUI.Frame;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 
 import BaseUtil.GlobalData;
-import GUI.Listener.DataBaseConfigListener;
 import GUI.Listener.LoginDialogListener;
-import GUI.Listener.TableListener;
 
 
 public class LoginDialog extends JDialog implements Runnable {

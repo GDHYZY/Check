@@ -92,6 +92,7 @@ public class MainPanel extends JPanel {
 	public void showData(Object[][] data, Object[] head) {
 		table.removeAll();
 		table = new DataTable(data, head);
+		table.setRowSorter(null);
 		jscrolPane.setViewportView(table);
 	}
 

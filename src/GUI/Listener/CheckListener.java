@@ -11,7 +11,6 @@ import BaseUtil.GlobalData;
 import CompareModule.CompareUnit;
 import GUI.Frame.CheckDialog;
 import GUI.Frame.MainPanel;
-import GUI.Frame.SaveDataDialog;
 
 public class CheckListener  implements ActionListener {
 	private JButton ensure;

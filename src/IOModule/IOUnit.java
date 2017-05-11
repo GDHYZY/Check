@@ -167,9 +167,8 @@ public class IOUnit {
 			ExportData export = output.get(i);
 			System.out.println(export.m_Target.Title +": 总相似度"+String.format("%.2f", (export.m_Similarity*100))
 					+"% 共有"+ export.m_WorNumber + "个词相似");
-//			String text1 = getWord(export.m_Target.Path);
-			
-			CreateDoc(export, Path+"\\"+export.m_Target.Title);
+			if (export.m_Similarity != 0.0)
+				CreateDoc(export, Path+"\\"+export.m_Target.Title);
 			
 			for (int j = 0; j < export.m_Sample.size(); ++j){
 				if (export.m_Sample.get(j).m_Similarity != 0)
@@ -181,33 +180,6 @@ public class IOUnit {
 							"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))
 							+"% 共有"+export.m_Sample.get(j).m_WordNumber+" 个词相似");
 				}
-//				String text2 = getWord(export.m_Sample.get(j).m_Sampledata.Path);
-				
-//				ArrayList<SimilarityParagraph> parlist = export.m_Sample.get(j).m_ParagraphSimilarity;
-//				for (int k = 0; k < parlist.size(); ++k){
-//					System.out.println("          第"+parlist.get(k).m_TargetParagraph+"与第"+
-//							parlist.get(k).m_SampleParagraph+"相似度为"+String.format("%.2f", (100*parlist.get(k).m_Similarity))+"%  有"+
-//							parlist.get(k).m_WordNumber+"个词相同");
-				
-//					int[] pos = export.m_Target.ParagraphMsg.get(parlist.get(k).m_TargetParagraph);
-//					String tmp1 = text1.substring(pos[0], pos[1]).trim();
-//					pos = export.m_Sample.get(j).m_Sampledata.ParagraphMsg.get(parlist.get(k).m_SampleParagraph);
-//					String tmp2 = text2.substring(pos[0],pos[1]).trim();
-					
-//					System.out.print("          {");
-//					for (String s: parlist.get(k).m_SimilarityText){
-//						System.out.print(s+",");
-//					}
-//					System.out.println("}");
-					
-//					for (String s: parlist.get(k).m_SimilarityText){
-//						tmp1 = tmp1.replace(s, "`");
-//						tmp2 = tmp2.replace(s,"`");
-//					}
-					
-//					System.out.println(">"+tmp1+"\n>"+tmp2);
-//					System.out.println("-----------------------------------------------------------------");
-//				}
 			}
 		}
 		System.out.println();
@@ -275,7 +247,8 @@ public class IOUnit {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}     
+		}    
+        LogUnit.getSingleton().writeLog("导出"+export.m_Target.Title);
 	}
 	
 }

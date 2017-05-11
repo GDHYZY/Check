@@ -356,6 +356,7 @@ public class DBUnit {
 		AddReportItems(data);
 		CreateParagraphTable(data);
 		AddParagraphItems(data);
+		LogUnit.getSingleton().writeLog(data.Title+"已经存入数据库");
 	}
 	
 	
