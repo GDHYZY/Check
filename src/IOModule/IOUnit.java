@@ -43,7 +43,8 @@ public class IOUnit implements Runnable{
 	String name[] = null;
 	
 	public IOUnit(){
-		
+		path = "";
+		name = null;
 	}
 	
 	public IOUnit(String path,String[] name){
@@ -198,7 +199,7 @@ public class IOUnit implements Runnable{
 				+ "<w:sz w:val=\"21\"/><w:szCs w:val=\"21\"/><w:highlight w:val=\"none\"/><w:lang w:val=\"en-US\" w:eastAsia=\"zh-CN\"/><w:color w:val=\"FF0000\"/></w:rPr><w:t>";
 		String right = "</w:t></w:r><w:r><w:rPr><w:rFonts w:hint=\"eastAsia\"/><w:b w:val=\"0\"/><w:bCs w:val=\"0\"/>"
 				+ "<w:sz w:val=\"21\"/><w:szCs w:val=\"21\"/><w:highlight w:val=\"none\"/><w:lang w:val=\"en-US\" w:eastAsia=\"zh-CN\"/></w:rPr><w:t>";
-		
+	
 		Map<String, Object> dataMap = new HashMap<String, Object>();  
         dataMap.put("name", export.m_Target.Title.substring(0, export.m_Target.Title.lastIndexOf('.')));  
         dataMap.put("date", export.m_Target.Date); 
@@ -236,7 +237,22 @@ public class IOUnit implements Runnable{
     			String tmp2 = text2.substring(pos[0],pos[1]).trim();
         		Map<String, Object> map2 = new HashMap<String, Object>();
         		
+        		tmp1 = tmp1.replace("'", "&apos;");//替换单引号  
+        		tmp1 = tmp1.replace("\"", "&quot;"); // 替换双引号  
+        		tmp1 = tmp1.replace("<", "&lt;");//替换左尖括号  
+        		tmp1 = tmp1.replaceAll(">", "&gt;");//替换右尖括号 
+
+        		tmp2 = tmp2.replace("'", "&apos;");//替换单引号  
+        		tmp2 = tmp2.replace("\"", "&quot;"); // 替换双引号  
+        		tmp2 = tmp2.replace("<", "&lt;");//替换左尖括号  
+        		tmp2 = tmp2.replaceAll(">", "&gt;");//替换右尖括号 
+        		
         		for (String s : parlist.get(j).m_SimilarityText){
+        			s = s.replace("'", "&apos;");//替换单引号  
+            		s = s.replace("\"", "&quot;"); // 替换双引号  
+            		s = s.replace("<", "&lt;");//替换左尖括号  
+            		s = s.replaceAll(">", "&gt;");//替换右尖括号 
+            		
         			tmp1 = tmp1.replace(s, left+s.trim()+right);
         			tmp2 = tmp2.replace(s, left+s.trim()+right);
         		}
