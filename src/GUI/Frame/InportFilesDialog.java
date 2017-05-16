@@ -10,7 +10,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.ProgressMonitor;
 
+import com.mysql.jdbc.log.Log;
+
+import BaseUtil.LogUnit;
 import IOModule.IOUnit;
 
 public class InportFilesDialog extends JDialog {
@@ -19,7 +23,7 @@ public class InportFilesDialog extends JDialog {
 	 */
 	private static final long serialVersionUID = -1116388016863724023L;
 	private static InportFilesDialog inportFilesDialog;
-
+	
 	public static InportFilesDialog instance() {
 		if (inportFilesDialog == null)
 			inportFilesDialog = new InportFilesDialog();
@@ -50,9 +54,10 @@ public class InportFilesDialog extends JDialog {
 				name[i]=file[i].getName();
 			}
 			String path=jfc.getSelectedFile().getParent();
-			System.out.println(path);
-			new IOUnit().readWord(path,name);
-			JOptionPane.showMessageDialog(null, "文件已读入！");		
+			Thread td = new Thread(new IOUnit(path,name));
+			td.start();
+			LogPanel.instance().reflush();
+			new ProgressMonitorBar("读取文件", name.length);					
 		}
 		MainPanel.instance().refresh();
 	}

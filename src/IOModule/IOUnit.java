@@ -38,11 +38,18 @@ import BaseUtil.*;
 import CompareModule.CompareUnit;
 import DateBaseModule.DBUnit;
 
-public class IOUnit {
-	/* 单文档直接对比数据库
-	 * 输入： 路径， 文件名
-	 * 输出： true代表存在， false代表不存在
-	 */
+public class IOUnit implements Runnable{
+	String path = "";
+	String name[] = null;
+	
+	public IOUnit(){
+		
+	}
+	
+	public IOUnit(String path,String[] name){
+		this.path = path;
+		this.name = name;
+	}
 	
 	public String getWord(String path) {
 		InputStream in = null;
@@ -138,6 +145,7 @@ public class IOUnit {
 			}		
 			GlobalData.getSingleton().m_ExportData.clear();
 			GlobalData.getSingleton().m_InputData.addAll(new ArrayList<ReportData>(Arrays.asList(reports)));
+			LogUnit.getSingleton().writeLog("所有文档读取完毕");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -249,6 +257,12 @@ public class IOUnit {
 			e.printStackTrace();
 		}    
         LogUnit.getSingleton().writeLog("导出"+export.m_Target.Title);
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		readWord(path, name);
 	}
 	
 }

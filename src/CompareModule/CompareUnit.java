@@ -14,7 +14,7 @@ import BaseUtil.SimilarityParagraph;
 import IOModule.IOUnit;
 
 
-public class CompareUnit {
+public class CompareUnit implements Runnable {
 	private double m_Level = 0.65;		//重复率设置
 	private double m_PicLevel = 0.95;	//图片重复率
 	private Map<ReportData, ArrayList<ReportData>> m_Nopass = null;
@@ -40,7 +40,8 @@ public class CompareUnit {
 		ReportData[] dbdatas = getDataFromDataBase();
 		CompareWithDatabase(datas.toArray(new ReportData[datas.size()]), dbdatas);
 
-		ParagraphSimilarity();
+		ParagraphSimilarity();	
+		LogUnit.getSingleton().writeLog("检查相似度结束");
 	}
 	
 	// 将文档集与数据库集进行对比
@@ -72,6 +73,8 @@ public class CompareUnit {
 			}
 			if (tmp != null){
 				m_Nopass.put(needcheck[i], tmp);
+			} else {
+				LogUnit.getSingleton().writeLog(needcheck[i].Title+"对比完毕");
 			}
 		}
 		return ;
@@ -497,73 +500,11 @@ public class CompareUnit {
         res[2] = longest;
         return res;
 	}
-	
-//	private int[] LongestCommonSubsequence(char[] str1, char[] str2){
-//		int size1 = str1.length;
-//        int size2 = str2.length;
-//        int[] res = new int[3];
-//        if (size1 == 0 || size2 == 0) 
-//        	return res;
-// 
-//        int start1 = -1;
-//        int start2 = -1;
-//        int longest = 0;
-//        
-//        for (int i = 0; i < size1; ++i)
-//        {
-//            int m = i;
-//            int n = 0;
-//            int length = 0;
-//            while (m < size1 && n < size2)
-//            {
-//                if (str1[m] != str2[n])
-//                {
-//                    length = 0;
-//                }
-//                else
-//                {
-//                    ++length;
-//                    if (longest < length)
-//                    {
-//                        longest = length;
-//                        start1 = m - longest + 1;
-//                        start2 = n - longest + 1;
-//                    }
-//                }
-//                ++m;
-//                ++n;
-//            }
-//        }
-// 
-//        for (int j = 1; j < size2; ++j)
-//        {
-//            int m = 0;
-//            int n = j;
-//            int length = 0;
-//            while (m < size1 && n < size2)
-//            {
-//                if (str1[m] != str2[n])
-//                {
-//                    length = 0;
-//                }
-//                else
-//                {
-//                    ++length;
-//                    if (longest < length)
-//                    {
-//                        longest = length;
-//                        start1 = m - longest + 1;
-//                        start2 = n - longest + 1;
-//                    }
-//                }
-//                ++m;
-//                ++n;
-//            }
-//        }
-//        res[0] = start1;
-//        res[1] = start2;
-//        res[2] = longest;
-//        return res;
-//	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		Compare();
+	}
 	
 }

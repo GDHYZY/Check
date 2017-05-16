@@ -96,4 +96,11 @@ public class LogPanel extends JPanel {
 		super.paint(g);
 	}
 
+	public void reflush(){
+		ArrayList<String> logs = LogUnit.getSingleton().readLog();
+		for (String s : logs){
+			LogPanel.instance().getTextArea().append(s);
+			LogPanel.instance().getTextArea().append("\r\n");
+		}
+	}
 }

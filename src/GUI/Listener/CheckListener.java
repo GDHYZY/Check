@@ -10,7 +10,9 @@ import javax.swing.JOptionPane;
 import BaseUtil.GlobalData;
 import CompareModule.CompareUnit;
 import GUI.Frame.CheckDialog;
+import GUI.Frame.LogPanel;
 import GUI.Frame.MainPanel;
+import GUI.Frame.ProgressMonitorBar;
 
 public class CheckListener  implements ActionListener {
 	private JButton ensure;
@@ -40,10 +42,12 @@ public class CheckListener  implements ActionListener {
 			
 			if (GlobalData.getSingleton().m_ExportData != null || !GlobalData.getSingleton().m_ExportData.isEmpty())
 			{
-				new CompareUnit().Compare();
+				Thread td = new Thread(new CompareUnit());
+				td.start();
+				MainPanel.instance().refresh();
+				LogPanel.instance().reflush();
+				new ProgressMonitorBar("查重", GlobalData.getSingleton().m_InputData.size());	
 			}
-			JOptionPane.showMessageDialog(null, "检测完毕");
-			MainPanel.instance().refresh();
 		}
 	}
 }
