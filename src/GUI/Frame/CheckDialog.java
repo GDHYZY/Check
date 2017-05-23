@@ -1,16 +1,9 @@
 package GUI.Frame;
 
-import java.io.File;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import GUI.Listener.CheckListener;
-import IOModule.IOUnit;
 
 public class CheckDialog extends JDialog{
 	/**

@@ -1,6 +1,7 @@
 package CompareModule;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,6 +20,11 @@ public class CompareUnit implements Runnable {
 	private double m_PicLevel = 0.95;	//图片重复率
 	private Map<ReportData, ArrayList<ReportData>> m_Nopass = null;
 	private ArrayList<ReportData[]> m_Picnopass = null;	//图片有非常相似的两个报告
+	
+	private void Clear(){
+		m_Nopass = null;
+		m_Picnopass = null;
+	}
 	
 	public CompareUnit() {
 		// TODO Auto-generated constructor stub
@@ -41,7 +47,18 @@ public class CompareUnit implements Runnable {
 		CompareWithDatabase(datas.toArray(new ReportData[datas.size()]), dbdatas);
 
 		ParagraphSimilarity();	
+		
+		//排序完毕，按照相似度由高到低排序
+		Comparator<ExportData> comparator = new Comparator<ExportData>() {
+			@Override
+			public int compare(ExportData e1, ExportData e2) {
+				return e2.m_Similarity >= e1.m_Similarity ? 1 : -1;
+			}
+		};
+		Collections.sort(GlobalData.getSingleton().m_ExportData,comparator); 
+		
 		LogUnit.getSingleton().writeLog("检查相似度结束");
+		Clear();
 	}
 	
 	// 将文档集与数据库集进行对比
@@ -58,7 +75,6 @@ public class CompareUnit implements Runnable {
 					double picresult = getPicSimilarity(needcheck[i], dbdatas[j]);
 					if (picresult > m_PicLevel){ //说明有非常相似的图片
 						m_Picnopass.add(new ReportData[] {needcheck[i], dbdatas[j]});
-						continue;
 					}					
 				}
 				
@@ -424,12 +440,7 @@ public class CompareUnit implements Runnable {
 			}
 			res.put(r1, sample);
 		}
-//		for (int j = 0;j < len;j++){
-//			if(mp[j] == 0){
-//				m_Checkout.add(reports.get(j));
-//			}
-//		}
-		
+
 		return res.isEmpty()? null : res;
 	}
 	

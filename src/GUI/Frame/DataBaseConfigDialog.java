@@ -1,17 +1,10 @@
 package GUI.Frame;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
 import BaseUtil.GlobalData;
 import GUI.Listener.DataBaseConfigListener;
 import GUI.Listener.TableListener;

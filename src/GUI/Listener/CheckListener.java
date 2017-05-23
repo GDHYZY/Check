@@ -5,8 +5,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
-
 import BaseUtil.GlobalData;
 import CompareModule.CompareUnit;
 import GUI.Frame.CheckDialog;

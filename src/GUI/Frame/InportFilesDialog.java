@@ -1,20 +1,11 @@
 package GUI.Frame;
 
-import java.awt.Font;
 import java.io.File;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.ProgressMonitor;
-
-import com.mysql.jdbc.log.Log;
-
-import BaseUtil.LogUnit;
+import javax.swing.filechooser.FileFilter;
 import IOModule.IOUnit;
 
 public class InportFilesDialog extends JDialog {
@@ -40,11 +31,24 @@ public class InportFilesDialog extends JDialog {
 		inportFilesDialog = this;
 	}
 
+	class WordFileFilter extends FileFilter {    
+	    @Override
+		public String getDescription() {    
+	        return "*.doc;*.docx";    
+	    }    
+	    
+	    @Override
+		public boolean accept(File file) {    
+	        String name = file.getName();    
+	        return file.isDirectory() || name.toLowerCase().endsWith(".doc") || name.toLowerCase().endsWith(".docx");  // 仅显示目录和xls、xlsx文件  
+	    }    
+	}
+	
 	public void open() {
-		
 		JFrame f = new JFrame();
 		JFileChooser jfc = new JFileChooser();
 		jfc.setMultiSelectionEnabled(true);
+		jfc.setFileFilter(new WordFileFilter());
 		if (jfc.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) 
 		{
 			File[] file =jfc.getSelectedFiles();

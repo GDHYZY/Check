@@ -2,11 +2,10 @@ package GUI.Listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
@@ -14,14 +13,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
-
-import jxl.write.WriteException;
 import BaseUtil.ExportData;
 import BaseUtil.GlobalData;
 import BaseUtil.ReportData;
-import GUI.Frame.BackgroundPanel;
 import GUI.Frame.DataBaseConfigDialog;
 import GUI.Frame.DataTable;
 import GUI.Frame.MainFrame;
@@ -43,11 +39,12 @@ public class TableListener extends MouseAdapter implements ActionListener {
 		this.menu = menu;
 	}
 
+	@Override
 	public void mousePressed(MouseEvent e) {
 		if (table.getSelectedRow() < 0) {
 			int modifiers = e.getModifiers();
-			modifiers -= MouseEvent.BUTTON3_MASK;
-			modifiers |= MouseEvent.BUTTON1_MASK;
+			modifiers -= InputEvent.BUTTON3_MASK;
+			modifiers |= InputEvent.BUTTON1_MASK;
 			MouseEvent ne = new MouseEvent(e.getComponent(), e.getID(),
 					e.getWhen(), modifiers, e.getX(), e.getY(),
 					e.getClickCount(), false);
@@ -55,8 +52,9 @@ public class TableListener extends MouseAdapter implements ActionListener {
 		}
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
-		if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0
+		if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
 				&& !e.isControlDown() && !e.isShiftDown()) {
 			menu.show(table, e.getX(), e.getY());
 		}
@@ -83,9 +81,16 @@ public class TableListener extends MouseAdapter implements ActionListener {
 				if (ep.m_Target.Title == name){
 					JFrame f = new JFrame();
 					JFileChooser jfc = new JFileChooser();
+					jfc.setFileFilter(new FileNameExtensionFilter("Word文件(*.doc)", "doc"));
 					if (jfc.showSaveDialog(f) == JFileChooser.APPROVE_OPTION) 
 					{
 						File file =jfc.getSelectedFile();
+						String fname = jfc.getName(file);   //从文件名输入框中获取文件名  
+						
+				        if(fname.indexOf(".doc")==-1){  
+				            file=new File(jfc.getCurrentDirectory(),fname+".doc");  
+				        }
+						
 						String Name = file.getName();
 						String path=jfc.getSelectedFile().getParent();
 						path += "\\"+Name;

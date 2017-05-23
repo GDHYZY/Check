@@ -3,22 +3,17 @@ package GUI.Frame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import BaseUtil.GlobalData;
 import BaseUtil.LogUnit;
-import GUI.Listener.TableListener;
 
 public class LogPanel extends JPanel {
 	/**
@@ -66,6 +61,7 @@ public class LogPanel extends JPanel {
 		final long timeInterval = 2000;  
 		
 		Runnable runnable = new Runnable(){
+			@Override
 			public void run(){
 				while(true){
 					ArrayList<String> logs = LogUnit.getSingleton().readLog();

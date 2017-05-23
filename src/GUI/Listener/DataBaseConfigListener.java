@@ -4,12 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import BaseUtil.GlobalData;
 import GUI.Frame.DataBaseConfigDialog;
-import GUI.Frame.MainFrame;
 
 public class DataBaseConfigListener implements ActionListener {
 	private JButton create, cancel;

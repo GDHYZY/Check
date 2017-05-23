@@ -23,6 +23,7 @@ public class BackgroundPanel extends JPanel {
 				(int) screenSize.getHeight());
 	}
 
+	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		Dimension screenSize = MainFrame.instance().getContentPane().getSize();

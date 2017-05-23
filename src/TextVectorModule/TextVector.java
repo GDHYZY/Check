@@ -1,8 +1,6 @@
 package TextVectorModule;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -11,8 +9,6 @@ import org.wltea.analyzer.core.IKSegmenter;
 import org.wltea.analyzer.core.Lexeme;
 
 import BaseUtil.ReportData;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
 
 
 public class TextVector implements Runnable {

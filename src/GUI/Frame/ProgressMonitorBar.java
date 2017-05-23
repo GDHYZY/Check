@@ -48,6 +48,7 @@ public class ProgressMonitorBar extends JPanel implements ActionListener {
 	}
 
 	class Update implements Runnable {
+		@Override
 		public void run() {
 			if (Now >= Number){
 				timer.stop();

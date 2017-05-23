@@ -4,13 +4,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-import BaseUtil.GlobalData;
 import BaseUtil.LogUnit;
 import BaseUtil.ReportData;
 

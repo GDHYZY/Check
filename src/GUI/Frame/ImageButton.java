@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 
 public class ImageButton extends JButton implements MouseListener {
@@ -39,8 +40,8 @@ public class ImageButton extends JButton implements MouseListener {
 	public ImageButton(String btnname, String text) {
 		this(btnname);
 		textPanel.setText(text);
-		textPanel.setVerticalAlignment(JLabel.CENTER);
-		textPanel.setHorizontalAlignment(JLabel.CENTER);
+		textPanel.setVerticalAlignment(SwingConstants.CENTER);
+		textPanel.setHorizontalAlignment(SwingConstants.CENTER);
 		textPanel.setForeground(Color.LIGHT_GRAY);
 		textPanel.setFont(new Font("微软雅黑",Font.PLAIN, 14));
 		add(textPanel);
@@ -51,9 +52,11 @@ public class ImageButton extends JButton implements MouseListener {
 		textPanel.setFont((new Font("微软雅黑", Font.PLAIN, size)));
 	}
 
+	@Override
 	public void mouseClicked(MouseEvent e) {
 	}
 
+	@Override
 	public void mouseEntered(MouseEvent e) {
 		if (!enabled)
 			return;
@@ -65,6 +68,7 @@ public class ImageButton extends JButton implements MouseListener {
 		}
 	}
 
+	@Override
 	public void mouseExited(MouseEvent e) {
 		if (!enabled)
 			return;
@@ -72,6 +76,7 @@ public class ImageButton extends JButton implements MouseListener {
 		setModal("");
 	}
 
+	@Override
 	public void mousePressed(MouseEvent e) {
 		if (!enabled)
 			return;
@@ -79,6 +84,7 @@ public class ImageButton extends JButton implements MouseListener {
 		setModal("pressed");
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (!enabled)
 			return;
@@ -112,6 +118,7 @@ public class ImageButton extends JButton implements MouseListener {
 		}
 	}
 
+	@Override
 	public void setText(String text) {
 		this.textPanel.setText(text);
 	}
