@@ -160,24 +160,27 @@ public class IOUnit implements Runnable{
 		LogUnit.getSingleton().writeLog("开始导出文件");
 		for (int i = 0; i < output.size(); ++i){
 			ExportData export = output.get(i);
-			System.out.println(export.m_Target.Title +": 总相似度"+String.format("%.2f", (export.m_Similarity*100))
-					+"% 共有"+ export.m_WorNumber + "个词相似");
-			if (export.m_Similarity != 0.0)
-				CreateDoc(export, Path+"\\"+export.m_Target.Title);
-			
-			for (int j = 0; j < export.m_Sample.size(); ++j){
-				if (export.m_Sample.get(j).m_Similarity != 0)
-				System.out.println("     与"+export.m_Sample.get(j).m_Sampledata.Title+
-						"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))
-						+"% 共有"+export.m_Sample.get(j).m_WordNumber+" 个词相似");
-				else {
-					System.err.println("     与"+export.m_Sample.get(j).m_Sampledata.Title+
-							"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))
-							+"% 共有"+export.m_Sample.get(j).m_WordNumber+" 个词相似");
-				}
+//			System.out.println(export.m_Target.Title +": 总相似度"+String.format("%.2f", (export.m_Similarity*100))
+//					+"% 共有"+ export.m_WorNumber + "个词相似");
+			if (export.m_Similarity != 0.0){
+				String name = export.m_Target.Title.substring(0,export.m_Target.Title.lastIndexOf('.'));
+				String tmp = Path+"\\"+name+"_"+String.format("%.2f", export.m_Similarity*100)+"%.doc";
+				CreateDoc(export, tmp);
 			}
+			
+//			for (int j = 0; j < export.m_Sample.size(); ++j){
+//				if (export.m_Sample.get(j).m_Similarity != 0)
+//				System.out.println("     与"+export.m_Sample.get(j).m_Sampledata.Title+
+//						"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))
+//						+"% 共有"+export.m_Sample.get(j).m_WordNumber+" 个词相似");
+//				else {
+//					System.err.println("     与"+export.m_Sample.get(j).m_Sampledata.Title+
+//							"的相似度为:"+String.format("%.2f", (export.m_Sample.get(j).m_Similarity*100))
+//							+"% 共有"+export.m_Sample.get(j).m_WordNumber+" 个词相似");
+//				}
+//			}
 		}
-		System.out.println();
+//		System.out.println();
 	}
 	
 	public void CreateDoc(ExportData export, String path){
@@ -186,6 +189,7 @@ public class IOUnit implements Runnable{
 		String right = "</w:t></w:r><w:r><w:rPr><w:rFonts w:hint=\"eastAsia\"/><w:b w:val=\"0\"/><w:bCs w:val=\"0\"/>"
 				+ "<w:sz w:val=\"21\"/><w:szCs w:val=\"21\"/><w:highlight w:val=\"none\"/><w:lang w:val=\"en-US\" w:eastAsia=\"zh-CN\"/></w:rPr><w:t>";
 	
+		
 		Map<String, Object> dataMap = new HashMap<String, Object>();  
         dataMap.put("name", export.m_Target.Title.substring(0, export.m_Target.Title.lastIndexOf('.')));  
         dataMap.put("date", export.m_Target.Date); 
@@ -226,8 +230,8 @@ public class IOUnit implements Runnable{
         		tmp1 = tmp1.replace("'", "&apos;");//替换单引号  
         		tmp1 = tmp1.replace("\"", "&quot;"); // 替换双引号  
         		tmp1 = tmp1.replace("<", "&lt;");//替换左尖括号  
-        		tmp1 = tmp1.replaceAll(">", "&gt;");//替换右尖括号 
-
+        		tmp1 = tmp1.replaceAll(">", "&gt;");//替换右尖括号   
+        		
         		tmp2 = tmp2.replace("'", "&apos;");//替换单引号  
         		tmp2 = tmp2.replace("\"", "&quot;"); // 替换双引号  
         		tmp2 = tmp2.replace("<", "&lt;");//替换左尖括号  
@@ -237,7 +241,7 @@ public class IOUnit implements Runnable{
         			s = s.replace("'", "&apos;");//替换单引号  
             		s = s.replace("\"", "&quot;"); // 替换双引号  
             		s = s.replace("<", "&lt;");//替换左尖括号  
-            		s = s.replaceAll(">", "&gt;");//替换右尖括号 
+            		s = s.replaceAll(">", "&gt;");//替换右尖括号  
             		
         			tmp1 = tmp1.replace(s, left+s.trim()+right);
         			tmp2 = tmp2.replace(s, left+s.trim()+right);

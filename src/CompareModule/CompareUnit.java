@@ -52,10 +52,12 @@ public class CompareUnit implements Runnable {
 		Comparator<ExportData> comparator = new Comparator<ExportData>() {
 			@Override
 			public int compare(ExportData e1, ExportData e2) {
-				return e2.m_Similarity >= e1.m_Similarity ? 1 : -1;
+				if (e2.m_Similarity == e1.m_Similarity)
+					return 0;
+				return e2.m_Similarity > e1.m_Similarity ? 1 : -1;
 			}
 		};
-		Collections.sort(GlobalData.getSingleton().m_ExportData,comparator); 
+		Collections.sort(GlobalData.getSingleton().m_ExportData, comparator);
 		
 		LogUnit.getSingleton().writeLog("检查相似度结束");
 		Clear();
@@ -303,9 +305,16 @@ public class CompareUnit implements Runnable {
 				res.add(a2);
 				pos1 +=2;
 			} else {
-				res.add(Math.min(a1, b1));
-				res.add(Math.max(a2, b2));
-				pos1+=2; pos2+=2;
+				if (a1 > b1 && a2 < b2) {
+					pos1 += 2;
+				} else if (b1 > a1 && b2 < a2) {
+					pos2 += 2;
+				} else {
+					res.add(Math.min(a1, b1));
+					res.add(Math.max(a2, b2));
+					pos1 += 2;
+					pos2 += 2;
+				}
 			}
 		}
 		while(pos1 < alen){res.add(a.get(pos1++));}
@@ -425,7 +434,6 @@ public class CompareUnit implements Runnable {
 					if (picresult > m_PicLevel){ //说明有非常相似的图片
 						m_Picnopass.add(new ReportData[] {r1, r2});
 						m_Picnopass.add(new ReportData[] {r2, r1});
-						continue;
 					}
 				}
 				
